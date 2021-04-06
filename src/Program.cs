@@ -28,6 +28,11 @@ namespace Meminisse
         static bool running = true;
 
         /// <summary>
+        /// Tells whether the endpoint is active
+        /// </summary>
+        static bool isEndpointActive = false;
+
+        /// <summary>
         ///  HTTP Endpoint Namespace
         /// </summary>
         const string ns = "COBOD";
@@ -45,6 +50,25 @@ namespace Meminisse
         static void CTRLC(object sender, ConsoleCancelEventArgs eventArgs)
         {
             logger.I("Received SIGINT");
+
+            // Make sure to clean up
+            if (isEndpointActive)
+            {
+                try 
+                {
+                    //CommandConnection conn = await CreateCommandConnection();
+
+                }
+                catch(SocketException e)
+                {
+
+                }
+                catch(IOException e)
+                {
+
+                }
+            }
+
             running = false;
         }
 
@@ -59,7 +83,7 @@ namespace Meminisse
         }
         public static async Task MainTask(string[] args)
         {
-            logger.I("Hello COBOD");
+            logger.I("Meminisse started!");
 
             CommandConnection conn = null;
             HttpEndpointUnixSocket socket;
@@ -92,6 +116,14 @@ namespace Meminisse
 
             // Add the Endpoint
             return (await cmdConn.AddHttpEndpoint(endpointType, ns, path), cmdConn);
+        }
+
+        private static async Task<CommandConnection> CreateCommandConnection(string socketPath = Defaults.FullSocketPath, 
+                                                                                CancellationToken cancellationToken = default)
+        {
+            CommandConnection conn = new();
+            await conn.Connect(socketPath, cancellationToken);
+            return conn;
         }
 
         private static async void Handler(HttpEndpointUnixSocket unixSocket, HttpEndpointConnection requestConnection)

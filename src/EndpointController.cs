@@ -92,6 +92,17 @@ namespace Meminisse
             }
         }
 
+        /// <summary>
+        /// Creates an Endpoint and return the key and object itself to be used.
+        /// </summary>
+        /// <param name="ns">Namespace of the Endpoint</param>
+        /// <param name="path">Path of the Endpoint</param>
+        /// <returns>(key, HttpEndpointUnixSocket)</returns>
+        /// <exception>ArgumentException</exception>
+        /// <exception>InvalidOperationException</exception>
+        /// <exception>IOException</exception>
+        /// <exception>OperationCanceledException</exception>
+        /// <exception>SocketException</exception>
         public async Task<(int, HttpEndpointUnixSocket)> CreateEndpoint(string ns, string path)
         {
             // Add the endpoint
