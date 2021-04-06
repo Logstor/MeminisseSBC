@@ -15,6 +15,21 @@ using System.Collections.Generic;
 namespace Meminisse
 {
     /// <summary>
+    /// Wrapper for an Endpoint and its ID.
+    /// </summary>
+    public struct EndpointWrapper
+    {
+        public int id { get; private set; }
+        public HttpEndpointUnixSocket socket { get; private set; }
+
+        public EndpointWrapper(int id, HttpEndpointUnixSocket socket)
+        {
+            this.id = id;
+            this.socket = socket;
+        }
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     public class EndpointController
@@ -45,11 +60,14 @@ namespace Meminisse
         /// </summary>
         private string socketPath;
 
-        public EndpointController(string socketPath = Defaults.FullSocketPath)
+        private CancellationToken cancellationToken;
+
+        public EndpointController(string socketPath = Defaults.FullSocketPath, CancellationToken cancellationToken = default(CancellationToken))
         {
             this.connection = new();
             this.socketPath = socketPath;
             this.endpoints = new();
+            this.cancellationToken = cancellationToken;
         }
 
         /// <summary>
@@ -66,7 +84,7 @@ namespace Meminisse
             // Make sure not to initialize again.
             if (this.isInitialized) return;
 
-            await this.connection.Connect(this.socketPath);
+            await this.connection.Connect(this.socketPath, cancellationToken);
             this.isInitialized = true;
         }
 
@@ -103,16 +121,16 @@ namespace Meminisse
         /// <exception>IOException</exception>
         /// <exception>OperationCanceledException</exception>
         /// <exception>SocketException</exception>
-        public async Task<(int, HttpEndpointUnixSocket)> CreateEndpoint(string ns, string path)
+        public async Task<EndpointWrapper> CreateEndpoint(string ns, string path)
         {
             // Add the endpoint
-            HttpEndpointUnixSocket socket = await this.connection.AddHttpEndpoint(HttpEndpointType.GET, ns, path, false, backlog: 4);
+            HttpEndpointUnixSocket socket = await this.connection.AddHttpEndpoint(HttpEndpointType.GET, ns, path, false, backlog: 4, cancellationToken);
 
             // Add to the Dictionary
             int key = this.currKey++;
             this.endpoints.Add(key, socket);
 
-            return (key, socket);
+            return new EndpointWrapper(key, socket);
         }
 
         public async void DeleteEndpoint(int key)
@@ -123,7 +141,7 @@ namespace Meminisse
 
             // If it exists remove the connection
             if (success)
-                await this.connection.RemoveHttpEndpoint(socket.EndpointType, socket.Namespace, socket.EndpointPath);
+                await this.connection.RemoveHttpEndpoint(socket.EndpointType, socket.Namespace, socket.EndpointPath, cancellationToken);
         }
     }
 }

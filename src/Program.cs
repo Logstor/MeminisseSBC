@@ -47,35 +47,41 @@ namespace Meminisse
         /// </summary>
         const HttpEndpointType endpointType = HttpEndpointType.GET;
 
-        static void CTRLC(object sender, ConsoleCancelEventArgs eventArgs)
-        {
-            logger.I("Received SIGINT");
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        static private CancellationTokenSource CancelSource = new();
 
-            // Make sure to clean up
-            if (isEndpointActive)
-            {
-                try 
-                {
-                    //CommandConnection conn = await CreateCommandConnection();
+        /// <summary>
+        /// 
+        /// </summary>
+        static private CancellationToken cancellationToken = CancelSource.Token;
 
-                }
-                catch(SocketException e)
-                {
-
-                }
-                catch(IOException e)
-                {
-
-                }
-            }
-
-            running = false;
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        static private EndpointController epHandle = new EndpointController(cancellationToken: cancellationToken);
 
         public static int Main(string[] args)
         {
-            // Signal handler
-            Console.CancelKeyPress += new ConsoleCancelEventHandler(CTRLC);
+            // Deal with program termination requests (SIGTERM and Ctrl+C)
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+            {
+                if (!CancelSource.IsCancellationRequested)
+                {
+                    CancelSource.Cancel();
+                }
+            };
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                if (!CancelSource.IsCancellationRequested)
+                {
+                    e.Cancel = true;
+                    CancelSource.Cancel();
+                }
+            };
 
             // Start actual main
             MainTask(args).Wait();
@@ -85,16 +91,19 @@ namespace Meminisse
         {
             logger.I("Meminisse started!");
 
-            CommandConnection conn = null;
-            HttpEndpointUnixSocket socket;
+            // Init EndpointController
+            epHandle.Init();
+
+            EndpointWrapper endpoint;
 
             try {
                 // Create HTTPEndpoint
-                (socket, conn) = await CreateEndpoint();
-                logger.I("HTTPEndpoint created!");
+                endpoint = await epHandle.CreateEndpoint(ns, path);
 
                 // Add eventhandler
-                socket.OnEndpointRequestReceived += Handler;
+                endpoint.socket.OnEndpointRequestReceived += Handler;
+
+                logger.I("Endpoint created!");
 
                 while(running);
             }
@@ -102,30 +111,17 @@ namespace Meminisse
                 logger.E(string.Format("Error creating Custom HTTPEndpoint\nException: {0}", e.ToString()));
             }
             finally {
-                logger.I("Removing Endpoint");
-                if (conn != null && conn.IsConnected)
-                    await conn.RemoveHttpEndpoint(endpointType, ns, path);
+                logger.I("Removing Endpoint(s)");
+                epHandle.CleanUp();
             }
         }
 
-        private static async Task<(HttpEndpointUnixSocket, CommandConnection)> CreateEndpoint()
-        {
-            // Use Command Connection
-            CommandConnection cmdConn = new CommandConnection();
-            await cmdConn.Connect(Defaults.FullSocketPath);
-
-            // Add the Endpoint
-            return (await cmdConn.AddHttpEndpoint(endpointType, ns, path), cmdConn);
-        }
-
-        private static async Task<CommandConnection> CreateCommandConnection(string socketPath = Defaults.FullSocketPath, 
-                                                                                CancellationToken cancellationToken = default)
-        {
-            CommandConnection conn = new();
-            await conn.Connect(socketPath, cancellationToken);
-            return conn;
-        }
-
+        /// <summary>
+        /// Eventhandler for the logging endpoint.
+        /// </summary>
+        /// <param name="unixSocket"></param>
+        /// <param name="requestConnection"></param>
+        /// <returns></returns>
         private static async void Handler(HttpEndpointUnixSocket unixSocket, HttpEndpointConnection requestConnection)
         {
             // Log
