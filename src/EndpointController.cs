@@ -60,6 +60,9 @@ namespace Meminisse
         /// </summary>
         private string socketPath;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private CancellationToken cancellationToken;
 
         public EndpointController(string socketPath = Defaults.FullSocketPath, CancellationToken cancellationToken = default(CancellationToken))
