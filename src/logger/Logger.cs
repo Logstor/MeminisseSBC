@@ -2,13 +2,23 @@ using System;
 using System.Threading;
 
 /// <summary>
+/// 
+/// </summary>
+public enum LogLevel { TRACE = 0, DEBUG = 1, INFO = 2, WARNING = 3, ERROR = 4 };
+
+/// <summary>
 /// A thread safe logging class
 /// </summary>
 public class Logger
 {
     private Mutex mut = new Mutex(initiallyOwned: false);
 
-    private enum Level { TRACE, DEBUG, INFO, WARNING, ERROR };
+    private LogLevel logLevel { get; set; }
+
+    public Logger(LogLevel logLevel = LogLevel.WARNING)
+    {
+        this.logLevel = logLevel;
+    }
 
     /// <summary>
     /// Write Trace log
@@ -16,7 +26,8 @@ public class Logger
     /// <param name="message"></param>
     public void T(string message)
     {
-        Log(message, Level.TRACE);
+        if (this.logLevel >= LogLevel.TRACE)
+            Log(message, LogLevel.TRACE);
     }
 
     /// <summary>
@@ -25,7 +36,8 @@ public class Logger
     /// <param name="message"></param>
     public void D(string message)
     {
-        Log(message, Level.DEBUG);
+        if (this.logLevel >= LogLevel.DEBUG)
+            Log(message, LogLevel.DEBUG);
     }
 
     /// <summary>
@@ -34,7 +46,8 @@ public class Logger
     /// <param name="message"></param>
     public void I(string message)
     {
-        Log(message, Level.INFO);
+        if (this.logLevel >= LogLevel.INFO)
+            Log(message, LogLevel.INFO);
     }
 
     /// <summary>
@@ -43,7 +56,8 @@ public class Logger
     /// <param name="message"></param>
     public void W(string message)
     {
-        Log(message, Level.WARNING);
+        if (this.logLevel >= LogLevel.WARNING)
+            Log(message, LogLevel.WARNING);
     }
 
     /// <summary>
@@ -52,9 +66,11 @@ public class Logger
     /// <param name="message"></param>
     public void E(string message)
     {
-        Log(message, Level.ERROR);
+        if (this.logLevel >= LogLevel.ERROR)
+            Log(message, LogLevel.ERROR);
     }
-    private void Log(string message, Level level)
+
+    private void Log(string message, LogLevel level)
     {
         // Retrieve lock
         mut.WaitOne();

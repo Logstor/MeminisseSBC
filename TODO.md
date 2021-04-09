@@ -1,2 +1,7 @@
 ### Tasks
- - Find out how to use Utf8Reader to use with GetSerializedObject()
+
+
+### Logging
+- Structure should be separated in folder by year
+- Every job should be logged to a separate file
+- Filename should be: "month/day" + "name of GCode"
