@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
@@ -40,7 +42,7 @@ public class CodeDataAccess : IDataAccess
 
         // Get Position
         JObject obj = JObject.Parse(json);
-        List<int> pos = obj["xyz"].ToObject<List<int>>();
+        List<int> pos = obj["coords"]["xyz"].ToObject<List<int>>();
 
         return new PositionEntity(pos.ToArray());
     }

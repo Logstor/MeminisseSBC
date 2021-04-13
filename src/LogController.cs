@@ -39,6 +39,7 @@ public class LogController
 
         Stopwatch timer = new();
         MachineStatus status;
+        PositionEntity positionEntity;
 
         // Loop until Job is done or the machine is turned off
         do {
@@ -62,7 +63,8 @@ public class LogController
             }
 
             // Write to log
-
+            positionEntity = await this.dataAccess.requestPosition();
+            this.logger.T(string.Format("Position [{0}, {1}, {2}]", positionEntity.getX(), positionEntity.getY(), positionEntity.getZ()));
 
             timer.Stop();
             this.logger.T(string.Format("Log took {0} milliseconds", timer.ElapsedMilliseconds));
