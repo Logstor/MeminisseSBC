@@ -26,7 +26,7 @@ public class Logger
     /// <param name="message"></param>
     public void T(string message)
     {
-        if (this.logLevel >= LogLevel.TRACE)
+        if (this.logLevel <= LogLevel.TRACE)
             Log(message, LogLevel.TRACE);
     }
 
@@ -36,7 +36,7 @@ public class Logger
     /// <param name="message"></param>
     public void D(string message)
     {
-        if (this.logLevel >= LogLevel.DEBUG)
+        if (this.logLevel <= LogLevel.DEBUG)
             Log(message, LogLevel.DEBUG);
     }
 
@@ -46,7 +46,7 @@ public class Logger
     /// <param name="message"></param>
     public void I(string message)
     {
-        if (this.logLevel >= LogLevel.INFO)
+        if (this.logLevel <= LogLevel.INFO)
             Log(message, LogLevel.INFO);
     }
 
@@ -56,7 +56,7 @@ public class Logger
     /// <param name="message"></param>
     public void W(string message)
     {
-        if (this.logLevel >= LogLevel.WARNING)
+        if (this.logLevel <= LogLevel.WARNING)
             Log(message, LogLevel.WARNING);
     }
 
@@ -66,7 +66,7 @@ public class Logger
     /// <param name="message"></param>
     public void E(string message)
     {
-        if (this.logLevel >= LogLevel.ERROR)
+        if (this.logLevel <= LogLevel.ERROR)
             Log(message, LogLevel.ERROR);
     }
 

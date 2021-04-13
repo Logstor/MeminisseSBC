@@ -1,4 +1,5 @@
-### Tasks
+### Errors
+- ObjectModel.UpdateFromJson() throw a deserialization error
 
 
 ### Logging

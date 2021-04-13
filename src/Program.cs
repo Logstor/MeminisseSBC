@@ -21,12 +21,14 @@ namespace Meminisse
         /// Logger instance which is used for logging through the whole application
         /// </summary>
         /// <returns></returns>
-        static Logger logger = new Logger();
+        static Logger logger = new Logger(LogLevel.TRACE);
 
         /// <summary>
         /// 
         /// </summary>
         static bool running = true;
+
+        static IDataAccess dataAccess = CodeDataAccess.getInstance();
 
         /// <summary>
         /// 
@@ -109,27 +111,21 @@ namespace Meminisse
             }
 
             // Retrieve state
-            logger.T("Start Subscribe connection");
-            using SubscribeConnection subConn = new();
-
-        #pragma warning disable CS0612
-            await subConn.Connect(mode: SubscriptionMode.Patch, filters: null, cancellationToken: cancellationToken);
-        #pragma warning restore CS0612
-
-            logger.D("Connection established");
-
-            ObjectModel currModel = new();
+            MachineStatus status;
             while(running)
             {
                 try 
                 {
-                    // Update the ObjectModel
-                    await UpdateModel(subConn, currModel);
+                    // Get machine status
+                    status = await dataAccess.requestStatus();
+                    logger.T(string.Format("Status {0}", status));
 
                     // If machine is processing, then start logging
-                    if (currModel.State.Status == MachineStatus.Processing)
+                    if (status == MachineStatus.Processing)
                     {
-                        
+                        logger.T("Starting logging");
+                        LogController log = new LogController(logger);
+                        await log.start(updateFreq: 2);
                     }
                 }
                 catch(JsonException e)
@@ -154,8 +150,13 @@ namespace Meminisse
         /// <exception cref="SocketException"/>
         private static async Task UpdateModel(SubscribeConnection connection, ObjectModel model)
         {
+            logger.T("Quering Object Model");
             using JsonDocument patch = await connection.GetObjectModelPatch(cancellationToken);
+            logger.T("Object Model received successfully");
+
+            logger.T("Trying to update Model from Json");
             model.UpdateFromJson(patch.RootElement);
+            logger.T("Updated Model from Json Success");
         }
 
         /// <summary>
