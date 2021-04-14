@@ -113,6 +113,11 @@ public class CodeDataAccess : IDataAccess
     private async Task<string> M408S4()
     {
         CodeResult res = await this.commandConnection.PerformCode(this.codeM408S4);
+
+        // Check if things went okay
+        if (!res.IsSuccessful) throw new Exception("CodeResult was unsuccessful");
+        else if (res.IsEmpty) throw new Exception("CodeResult was empty");
+
         return res.ToString();
         //return await this.commandConnection.PerformSimpleCode("M408 S4", CodeChannel.SBC);
     }
