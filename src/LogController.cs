@@ -14,7 +14,7 @@ using DuetAPI.ObjectModel;
 /// </summary>
 public class LogController
 {
-    private IDataAccess dataAccess = CodeDataAccess.getInstance();
+    private IDataAccess dataAccess;
 
     private Logger logger;
 
@@ -26,6 +26,7 @@ public class LogController
     public LogController(Logger logger)
     {
         this.logger = logger;
+        this.dataAccess = CodeDataAccess.getInstance(this.logger);
     }
 
     /// <summary>
@@ -37,15 +38,19 @@ public class LogController
         // Calculate delay
         long delayms = 1000L / (long) updateFreq;
 
-        Stopwatch timer = new();
+        // Setup timing
+        Stopwatch totalTime = new();
+        totalTime.Start();
+        Stopwatch logTimer = new();
+        
+        // Loop until Job is done or the machine is turned off
         MachineStatus status;
         PositionEntity positionEntity;
-
-        // Loop until Job is done or the machine is turned off
         do {
-            timer.Restart();
+            logTimer.Restart();
 
-            status = await this.dataAccess.requestStatus();
+            positionEntity = await this.dataAccess.requestPosition();
+            status = positionEntity.machineStatus;
 
             // If prints is paused
             if (status == MachineStatus.Paused || status == MachineStatus.Pausing)
@@ -63,21 +68,20 @@ public class LogController
             }
 
             // Write to log
-            positionEntity = await this.dataAccess.requestPosition();
             this.logger.T(string.Format("Position [{0}, {1}, {2}]", positionEntity.getX(), positionEntity.getY(), positionEntity.getZ()));
 
-            timer.Stop();
-            this.logger.T(string.Format("Log took {0} milliseconds", timer.ElapsedMilliseconds));
+            logTimer.Stop();
+            this.logger.T(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
             
             // Wait if we're before time
-            if ( !(timer.ElapsedMilliseconds >= delayms) )
-                Thread.Sleep( (int) (delayms - timer.ElapsedMilliseconds) );
+            if ( !(logTimer.ElapsedMilliseconds >= delayms) )
+                Thread.Sleep( (int) (delayms - logTimer.ElapsedMilliseconds) );
 
             // Otherwise warn the we can't reach the desired frequency
             else
                 this.logger.W(
                     string.Format("We can't log this fast! Current log time: {0} ms - Max log time: {1} ms", 
-                        timer.ElapsedMilliseconds, delayms));
+                        logTimer.ElapsedMilliseconds, delayms));
         } 
         while (true);
     }

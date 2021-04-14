@@ -21,14 +21,14 @@ namespace Meminisse
         /// Logger instance which is used for logging through the whole application
         /// </summary>
         /// <returns></returns>
-        static Logger logger = new Logger(LogLevel.TRACE);
+        static Logger logger = new Logger(LogLevel.DEBUG);
 
         /// <summary>
         /// 
         /// </summary>
         static bool running = true;
 
-        static IDataAccess dataAccess = CodeDataAccess.getInstance();
+        static IDataAccess dataAccess;
 
         /// <summary>
         /// 
@@ -91,6 +91,9 @@ namespace Meminisse
         public static async Task MainTask(string[] args)
         {
             logger.I("Meminisse started!");
+
+            // Init DataAccess - Inject API here
+            dataAccess = CodeDataAccess.getInstance(logger);
 
             // Init EndpointController
             epHandle.Init();

@@ -21,42 +21,101 @@ public class CodeDataAccess : IDataAccess
 
     private CommandConnection commandConnection;
 
-    private CodeDataAccess() 
+    private int maxRetry = 3;
+
+    private Logger logger;
+
+    private CodeDataAccess(Logger logger) 
     {
         commandConnection = new CommandConnection();
+        this.logger = logger;
     }
 
-    public static CodeDataAccess getInstance()
+    /// <summary>
+    /// Gets the instance of the CodeDataAccess singleton. If it's the first time calling 
+    /// this method, then it uses the logger parameter to set the logger.
+    /// </summary>
+    /// <param name="logger">To be set if it's the first time calling this method</param>
+    /// <returns>CodeDataAccess instance</returns>
+    public static CodeDataAccess getInstance(Logger logger)
     {
         if (instance == null)
-            instance = new();
+            instance = new(logger);
         return instance;
     }
 
+    /// <summary>
+    /// Retrieves the position of the Machine.
+    /// </summary>
+    /// <returns>PositionEntity</returns>
     async Task<PositionEntity> IDataAccess.requestPosition()
     {
-        await this.checkConnection();
+        await this.CheckConnection();
 
         // Retrieve data
-        string json = await this.commandConnection.PerformSimpleCode("M408 S4", CodeChannel.SBC);
+        Exception ex = null;
+        for (int i=0; i < this.maxRetry; i++)
+        {
+            try
+            {
+                string json = await this.M408S4();
 
-        // Get Position
-        JObject obj = JObject.Parse(json);
-        List<int> pos = obj["coords"]["xyz"].ToObject<List<int>>();
+                // Get Position
+                JObject obj = JObject.Parse(json);
+                List<int> pos = obj["coords"]["xyz"].ToObject<List<int>>();
+                MachineStatus status = this.ParseMachineStatus(obj);
 
-        return new PositionEntity(pos.ToArray());
+                return new PositionEntity(pos.ToArray(), status);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+                this.logger.D("Failed retrieving position ... Retrying");
+            }
+        }
+        
+        // Error here
+        throw new Exception(string.Format("Failed retrieving positions - Exception: {0}", ex.Message));
     }
 
     async Task<MachineStatus> IDataAccess.requestStatus()
     {
-        await this.checkConnection();
+        await this.CheckConnection();
 
         // Retrieve data
-        string json = await this.commandConnection.PerformSimpleCode("M408", CodeChannel.SBC);
+        for (int i=0; i < maxRetry; i++)
+        {
+            try 
+            {
+                string json = await this.M408S4();
 
-        // Get Status
-        JObject obj = JObject.Parse(json);
+                // Get Status
+                JObject obj = JObject.Parse(json);
+                return this.ParseMachineStatus(obj);
+            }
+            catch (Exception)
+            {
+                this.logger.D("Failed retrieving status, Retrying ...");
+            }
+        }
 
+        // This indicates error
+        this.logger.E("Couldn't retrieve MachineStatus");
+        return MachineStatus.Off;
+    }
+
+    private async Task<string> M408S4()
+    {
+        return await this.commandConnection.PerformSimpleCode("M408 S4", CodeChannel.SBC);
+    }
+
+    /// <summary>
+    /// Getting the MachineStatus from a M408 S4 json parsed to a JObject.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns>MachineStatus</returns>
+    private MachineStatus ParseMachineStatus(JObject obj)
+    {
         switch(obj["status"].ToObject<string>())
         {
             case "I":
@@ -70,7 +129,7 @@ public class CodeDataAccess : IDataAccess
         }
     }
 
-    private async Task checkConnection()
+    private async Task CheckConnection()
     {
         if (!this.commandConnection.IsConnected)
             await this.commandConnection.Connect();
