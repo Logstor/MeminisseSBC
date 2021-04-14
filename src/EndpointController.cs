@@ -32,7 +32,7 @@ namespace Meminisse
     /// <summary>
     /// 
     /// </summary>
-    public class EndpointController
+    public class EndpointController : IDisposable
     {
         /// <summary>
         /// Indicates whether the controller instance has been initialized.
@@ -71,6 +71,14 @@ namespace Meminisse
             this.socketPath = socketPath;
             this.endpoints = new();
             this.cancellationToken = cancellationToken;
+        }
+
+        /// <summary>
+        /// Clean up of connections when we're disposing the Controller
+        /// </summary>
+        void IDisposable.Dispose()
+        {
+            this.CleanUp();
         }
 
         /// <summary>
