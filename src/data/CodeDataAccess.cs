@@ -21,6 +21,8 @@ public class CodeDataAccess : IDataAccess
 
     private CommandConnection commandConnection;
 
+    private Code codeM408S4;
+
     private int maxRetry = 3;
 
     private Logger logger;
@@ -29,6 +31,10 @@ public class CodeDataAccess : IDataAccess
     {
         commandConnection = new CommandConnection();
         this.logger = logger;
+
+        this.codeM408S4 = new Code("M408 S4");
+        this.codeM408S4.Channel = CodeChannel.SBC;
+        this.codeM408S4.Flags = CodeFlags.IsPrioritized;
     }
 
     /// <summary>
@@ -106,7 +112,9 @@ public class CodeDataAccess : IDataAccess
 
     private async Task<string> M408S4()
     {
-        return await this.commandConnection.PerformSimpleCode("M408 S4", CodeChannel.SBC);
+        CodeResult res = await this.commandConnection.PerformCode(this.codeM408S4);
+        return res.ToString();
+        //return await this.commandConnection.PerformSimpleCode("M408 S4", CodeChannel.SBC);
     }
 
     /// <summary>

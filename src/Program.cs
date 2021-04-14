@@ -21,7 +21,7 @@ namespace Meminisse
         /// Logger instance which is used for logging through the whole application
         /// </summary>
         /// <returns></returns>
-        static Logger logger = new Logger(LogLevel.DEBUG);
+        static Logger logger = new Logger(LogLevel.TRACE);
 
         /// <summary>
         /// 
