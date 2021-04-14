@@ -20,6 +20,8 @@ namespace Meminisse
 
         private Logger logger;
 
+        private ILogController<PositionEntity> logFileControl = new CSVLogController<PositionEntity>();
+
         /// <summary>
         /// Creates an instance of the logging controller.
         /// </summary>
@@ -39,6 +41,9 @@ namespace Meminisse
         {
             // Calculate delay
             long delayms = 1000L / (long) updateFreq;
+
+            // Initialize LogFileController
+            this.logFileControl.Init("testprint.csv");
 
             // Setup timing
             Stopwatch totalTime = new();
@@ -70,7 +75,8 @@ namespace Meminisse
                 }
 
                 // Write to log
-                this.logger.T(string.Format("Position [{0}, {1}, {2}]", positionEntity.getX(), positionEntity.getY(), positionEntity.getZ()));
+                this.logFileControl.Add(positionEntity);
+                this.logFileControl.FlushToFile();
 
                 logTimer.Stop();
                 this.logger.T(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));

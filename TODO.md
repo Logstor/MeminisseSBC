@@ -1,6 +1,5 @@
 ### Errors
-- ObjectModel.UpdateFromJson() throw a deserialization error
-
+- CSVLogController is accumulating logs and writing them all everytime
 
 ### Logging
 - Structure should be separated in folder by year
