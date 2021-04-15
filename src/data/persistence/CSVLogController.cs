@@ -46,13 +46,15 @@ namespace Meminisse
             this.initialized = true;
         }
 
-        void ILogController<Entity>.Close()
+        void ILogController<Entity>.Reset()
         {
             // Clear and Create new instances
+            this.filename = null;
             this.Clean();
             this.CreateStreams();
 
             // Set initialized
+            this.initialized = false;
         }
 
         void ILogController<Entity>.Add(Entity entity)
@@ -74,11 +76,14 @@ namespace Meminisse
 
             try 
             {
-                // Write to harddrive
+                // Write to file
                 using (FileStream fs = File.Open(filename, FileMode.Append))
                 {
                     fs.Write(this.cache.GetBuffer(), 0, (int) this.cache.Length);
                 }
+
+                // Reset cache
+                this.ResetCache();
             }
             catch (Exception e)
             {
@@ -86,16 +91,34 @@ namespace Meminisse
             }
         }
 
+        /// <summary>
+        /// Resetting the cache, MemoryStream, by setting the position and length to 0.
+        /// 
+        /// This makes the MemoryStream start overwriting the memory from the start.
+        /// </summary>
+        private void ResetCache()
+        {
+            this.cache.Position = 0;
+            this.cache.SetLength(0);
+        }
+
         private void Clean()
         {
             if (this.csv != null)
-                this.csv.Dispose();
-            
+            {
+                try { this.csv.Dispose(); }
+                catch (Exception) {}
+            }
             if (this.writer != null)
-                this.writer.Dispose();
-
+            {
+                try { this.writer.Dispose(); }
+                catch (Exception) {}
+            }
             if (this.cache != null)
-                this.cache.Dispose();
+            {
+                try { this.cache.Dispose(); }
+                catch (Exception) {}
+            } 
         }
 
         private void CreateStreams()

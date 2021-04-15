@@ -6,7 +6,7 @@ namespace Meminisse
     {
         void Init(string filename);
 
-        void Close();
+        void Reset();
 
         void Add(Entity entity);
 
