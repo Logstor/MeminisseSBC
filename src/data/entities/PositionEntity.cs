@@ -1,3 +1,5 @@
+using System.Globalization;
+using CsvHelper.Configuration;
 using DuetAPI.ObjectModel;
 
 namespace Meminisse
@@ -30,6 +32,18 @@ namespace Meminisse
             this.y = pos[1];
             this.z = pos[2];
             this.machineStatus = machineStatus;
+        }
+    }
+
+    public sealed class PositionEntityMap : ClassMap<PositionEntity>
+    {
+        public PositionEntityMap()
+        {
+            AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.machineStatus).Index(0);
+            Map(m => m.x).Index(1);
+            Map(m => m.y).Index(2);
+            Map(m => m.z).Index(3);
         }
     }
 }

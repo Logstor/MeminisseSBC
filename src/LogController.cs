@@ -20,7 +20,7 @@ namespace Meminisse
 
         private Logger logger;
 
-        private ILogController<PositionEntity> logFileControl = new CSVLogController<PositionEntity>();
+        private ILogController<PositionEntity> logFileControl = new CSVLogController<PositionEntity, PositionEntityMap>();
 
         /// <summary>
         /// Creates an instance of the logging controller.
@@ -40,20 +40,25 @@ namespace Meminisse
         public async Task start(int updateFreq)
         {
             // Calculate delay
-            long delayms = 1000L / (long) updateFreq;
+            long delayms = 1000L / (long)updateFreq;
 
             // Initialize LogFileController
             this.logFileControl.Init("testprint.csv");
+            await MainLoop(delayms);
+        }
 
+        private async Task MainLoop(long delayms)
+        {
             // Setup timing
             Stopwatch totalTime = new();
             totalTime.Start();
             Stopwatch logTimer = new();
-            
+
             // Loop until Job is done or the machine is turned off
             MachineStatus status;
             PositionEntity positionEntity;
-            do {
+            do
+            {
                 logTimer.Restart();
 
                 positionEntity = await this.dataAccess.requestPosition();
@@ -63,7 +68,7 @@ namespace Meminisse
                 if (status == MachineStatus.Paused || status == MachineStatus.Pausing)
                 {
                     this.logger.T("Machine Paused");
-                    Thread.Sleep((int) delayms);
+                    Thread.Sleep((int)delayms);
                     continue;
                 }
 
@@ -75,22 +80,22 @@ namespace Meminisse
                 }
 
                 // Write to log
-                this.logFileControl.Add(positionEntity);
+                this.logFileControl.Add(totalTime.ElapsedMilliseconds, positionEntity);
                 this.logFileControl.FlushToFile();
 
                 logTimer.Stop();
                 this.logger.T(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
-                
+
                 // Wait if we're before time
-                if ( !(logTimer.ElapsedMilliseconds >= delayms) )
-                    Thread.Sleep( (int) (delayms - logTimer.ElapsedMilliseconds) );
+                if (!(logTimer.ElapsedMilliseconds >= delayms))
+                    Thread.Sleep((int)(delayms - logTimer.ElapsedMilliseconds));
 
                 // Otherwise warn the we can't reach the desired frequency
                 else
                     this.logger.W(
-                        string.Format("We can't log this fast! Current log time: {0} ms - Max log time: {1} ms", 
+                        string.Format("We can't log this fast! Current log time: {0} ms - Max log time: {1} ms",
                             logTimer.ElapsedMilliseconds, delayms));
-            } 
+            }
             while (true);
         }
     }

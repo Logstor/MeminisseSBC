@@ -1,5 +1,10 @@
+### TODO
+- Implement correct filename generation
+- Implement correct folder generation
+- Implement possibility to log unlimited amount of objects
+
 ### Errors
-- CSVLogController is accumulating logs and writing them all everytime
+
 
 ### Logging
 - Structure should be separated in folder by year

@@ -7,10 +7,11 @@ using System.Text;
 using System.Collections.Generic;
 
 using CsvHelper;
+using CsvHelper.Configuration;
 
 namespace Meminisse
 {
-    public class CSVLogController<Entity> : ILogController<Entity>, IDisposable
+    public class CSVLogController<Entity, EntityMap> : ILogController<Entity>, IDisposable where EntityMap : ClassMap<Entity>
     {
         private bool initialized = false;
 
@@ -36,6 +37,7 @@ namespace Meminisse
         {
             // Write header
             this.filename = filename;
+            this.csv.WriteField("totTime"); // Manuel header element
             this.csv.WriteHeader<Entity>();
             this.csv.NextRecord();
 
@@ -57,12 +59,13 @@ namespace Meminisse
             this.initialized = false;
         }
 
-        void ILogController<Entity>.Add(Entity entity)
+        void ILogController<Entity>.Add(long elapsedTimeMs, Entity entity)
         {
             if (!this.initialized)
                 throw new Exception("LogController not initialized!");
 
             // Write to cache
+            this.csv.WriteField(string.Format("{0}", elapsedTimeMs));
             this.csv.WriteRecord<Entity>(entity);
             this.csv.NextRecord();
             this.csv.Flush();
@@ -124,8 +127,9 @@ namespace Meminisse
         private void CreateStreams()
         {
             this.cache = new MemoryStream(128);
-            this.writer = new StreamWriter(this.cache);
+            this.writer = new StreamWriter(this.cache, Encoding.UTF8);
             this.csv = new CsvWriter(this.writer, CultureInfo.InvariantCulture);
+            this.csv.Context.RegisterClassMap<EntityMap>();
         }
     }
 }
