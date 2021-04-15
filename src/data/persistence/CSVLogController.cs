@@ -12,7 +12,6 @@ namespace Meminisse
 {
     public class CSVLogController<Entity> : ILogController<Entity>, IDisposable
     {
-        private Mutex mut = new Mutex();
         private bool initialized = false;
 
         private MemoryStream cache;
@@ -30,9 +29,7 @@ namespace Meminisse
 
         void IDisposable.Dispose()
         {
-            this.csv.Dispose();
-            this.writer.Dispose();
-            this.cache.Dispose();
+            this.Clean();
         }
 
         void ILogController<Entity>.Init(string filename)
@@ -75,9 +72,6 @@ namespace Meminisse
             if (!this.initialized)
                 throw new Exception("LogController not initialized!");
 
-            // Lock Mutex
-            mut.WaitOne();
-
             try 
             {
                 // Write to harddrive
@@ -90,18 +84,18 @@ namespace Meminisse
             {
                 Console.WriteLine(e.ToString());
             }
-            finally
-            {
-                // Unlock Mutex
-                mut.ReleaseMutex();
-            }
         }
 
         private void Clean()
         {
-            this.csv.Dispose();
-            this.writer.Dispose();
-            this.cache.Dispose();
+            if (this.csv != null)
+                this.csv.Dispose();
+            
+            if (this.writer != null)
+                this.writer.Dispose();
+
+            if (this.cache != null)
+                this.cache.Dispose();
         }
 
         private void CreateStreams()
