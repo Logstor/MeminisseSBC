@@ -21,7 +21,7 @@ namespace Meminisse
 
         private CsvWriter csv;
 
-        private string filename;
+        private string pathToFile;
 
         public CSVLogController()
         {
@@ -36,13 +36,12 @@ namespace Meminisse
         void ILogController<Entity>.Init(string filename)
         {
             // Write header
-            this.filename = filename;
             this.csv.WriteField("totTime"); // Manuel header element
             this.csv.WriteHeader<Entity>();
             this.csv.NextRecord();
 
             // Create file
-            using FileStream fs = File.Create(filename);
+            this.CreatePathAndFile(filename);
 
             // Set initialized
             this.initialized = true;
@@ -51,7 +50,7 @@ namespace Meminisse
         void ILogController<Entity>.Reset()
         {
             // Clear and Create new instances
-            this.filename = null;
+            this.pathToFile = null;
             this.Clean();
             this.CreateStreams();
 
@@ -80,7 +79,7 @@ namespace Meminisse
             try 
             {
                 // Write to file
-                using (FileStream fs = File.Open(filename, FileMode.Append))
+                using (FileStream fs = File.Open(this.pathToFile, FileMode.Append))
                 {
                     fs.Write(this.cache.GetBuffer(), 0, (int) this.cache.Length);
                 }
@@ -123,13 +122,26 @@ namespace Meminisse
                 catch (Exception) {}
             } 
         }
-
+        
         private void CreateStreams()
         {
             this.cache = new MemoryStream(128);
             this.writer = new StreamWriter(this.cache, Encoding.UTF8);
             this.csv = new CsvWriter(this.writer, CultureInfo.InvariantCulture);
             this.csv.Context.RegisterClassMap<EntityMap>();
+        }
+    
+        private void CreatePathAndFile(string filename)
+        {
+            // Generate path to file
+            this.pathToFile = FilePathGenerator.AppendMonthDay(filename);
+            this.pathToFile = FilePathGenerator.AppendDataLogPath(this.pathToFile);
+
+            // Make sure directory is created
+            Directory.CreateDirectory(FilePathGenerator.GetDataLogPath());
+
+            // Create the file
+            using FileStream fs = File.Create(this.pathToFile);
         }
     }
 }

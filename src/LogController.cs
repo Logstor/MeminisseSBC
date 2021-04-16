@@ -43,7 +43,7 @@ namespace Meminisse
             long delayms = 1000L / (long)updateFreq;
 
             // Initialize LogFileController
-            this.logFileControl.Init("testprint.csv");
+            this.logFileControl.Init(await this.GetLogFilename());
             await MainLoop(delayms);
         }
 
@@ -97,6 +97,19 @@ namespace Meminisse
                             logTimer.ElapsedMilliseconds, delayms));
             }
             while (true);
+        }
+
+        private async Task<string> GetLogFilename()
+        {
+            // Retrieve
+            string path = await this.dataAccess.requestCurrentFilePath();
+
+            // Parse
+            string filename = Path.GetFileNameWithoutExtension(path);
+            filename = filename.Trim();
+
+            // Add extension
+            return filename + ".log";
         }
     }
 }

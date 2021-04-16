@@ -17,5 +17,7 @@ namespace Meminisse
         Task<PositionEntity> requestPosition();
 
         Task<MachineStatus> requestStatus();
+
+        Task<string> requestCurrentFilePath();
     }
 }

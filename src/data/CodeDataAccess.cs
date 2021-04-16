@@ -115,6 +115,32 @@ namespace Meminisse
             return MachineStatus.Off;
         }
 
+        async Task<string> IDataAccess.requestCurrentFilePath()
+        {
+            await this.CheckConnection();
+
+            for (int i=0; i < maxRetry; i++)
+            {
+                try
+                {
+                    // Query
+                    string json = await this.commandConnection.GetSerializedObjectModel();
+
+                    // Parse
+                    JObject obj = JObject.Parse(json);
+                    return obj["job"]["file"]["fileName"].ToObject<string>();
+                }
+                catch (Exception)
+                {
+                    this.logger.D("Failed retrieving filename, Retrying ...");
+                }
+            }
+
+            // This is reached on error
+            this.logger.E("Couldn't retrieve filename!");
+            return "Error";
+        }
+
         /// <summary>
         /// Performs the code "M408 S4" and returns the result.
         /// </summary>
@@ -129,7 +155,6 @@ namespace Meminisse
             else if (res.IsEmpty) throw new Exception("CodeResult was empty");
 
             return res.ToString();
-            //return await this.commandConnection.PerformSimpleCode("M408 S4", CodeChannel.SBC);
         }
 
         /// <summary>
