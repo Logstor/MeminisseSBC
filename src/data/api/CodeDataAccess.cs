@@ -59,7 +59,7 @@ namespace Meminisse
         /// Retrieves the position of the Machine.
         /// </summary>
         /// <returns>PositionEntity</returns>
-        async Task<PositionEntity> IDataAccess.requestPosition()
+        async Task<Position> IDataAccess.requestPosition()
         {
             await this.CheckConnection();
 
@@ -76,7 +76,7 @@ namespace Meminisse
                     List<int> pos = obj["coords"]["xyz"].ToObject<List<int>>();
                     MachineStatus status = this.ParseMachineStatus(obj);
 
-                    return new PositionEntity(pos.ToArray(), status);
+                    return new Position(pos);
                 }
                 catch (Exception e)
                 {

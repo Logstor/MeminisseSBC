@@ -11,7 +11,7 @@ using CsvHelper.Configuration;
 
 namespace Meminisse
 {
-    public class CSVLogController<Entity, EntityMap> : ILogController<Entity>, IDisposable where EntityMap : ClassMap<Entity>
+    public class CSVLogController : ILogController, IDisposable
     {
         private bool initialized = false;
 
@@ -23,8 +23,14 @@ namespace Meminisse
 
         private string pathToFile;
 
+        private CsvConfiguration config;
+
         public CSVLogController()
         {
+            this.config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = ";"
+            };
             this.CreateStreams();
         }
 
@@ -33,11 +39,24 @@ namespace Meminisse
             this.Clean();
         }
 
-        void ILogController<Entity>.Init(string filename)
+        /// <summary>
+        /// Initialize the log with File Creation and Writing the initial header.
+        /// 
+        /// OBS: ATM you need to preserve the order of the list, so it can be added correctly later.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="entityTypes"></param>
+        void ILogController.Init(string filename, List<LogEntity> entityTypes)
         {
-            // Write header
             this.csv.WriteField("totTime"); // Manuel header element
-            this.csv.WriteHeader<Entity>();
+            
+            // Set Context and WriteHeaders
+            foreach (LogEntity entity in entityTypes)
+            {
+                (ILogEntity logEntity, ClassMap map) = this.GetClassAndMap(entity);
+                this.csv.Context.RegisterClassMap(map);
+                this.csv.WriteHeader(logEntity.GetType());
+            }
             this.csv.NextRecord();
 
             // Create file
@@ -47,7 +66,7 @@ namespace Meminisse
             this.initialized = true;
         }
 
-        void ILogController<Entity>.Reset()
+        void ILogController.Reset()
         {
             // Clear and Create new instances
             this.pathToFile = null;
@@ -58,19 +77,57 @@ namespace Meminisse
             this.initialized = false;
         }
 
-        void ILogController<Entity>.Add(long elapsedTimeMs, Entity entity)
+        /// <summary>
+        /// Adding an entry to the CSV.
+        /// 
+        /// OBS: Important that the order of the objects in the List is the same as when 
+        /// the log got initialized!
+        /// </summary>
+        /// <param name="totalElapsedTimeMs"></param>
+        /// <param name="entities"></param>
+        void ILogController.Add(long totalElapsedTimeMs, List<ILogEntity> entities)
         {
             if (!this.initialized)
                 throw new Exception("LogController not initialized!");
 
             // Write to cache
-            this.csv.WriteField(string.Format("{0}", elapsedTimeMs));
-            this.csv.WriteRecord<Entity>(entity);
-            this.csv.NextRecord();
+            this.csv.WriteField(string.Format("{0}", totalElapsedTimeMs));
+            foreach(ILogEntity entity in entities)
+            {
+                // Write the correct header
+                switch(entity.GetEntityType())
+                {
+                    case LogEntity.Position:
+                        this.csv.WriteRecord<Position>((Position) entity);
+                        break;
+                    case LogEntity.Layer:
+                        this.csv.WriteRecord<Layer>((Layer) entity);
+                        break;
+                    case LogEntity.Time:
+                        this.csv.WriteRecord<Time>((Time) entity);
+                        break;
+                    case LogEntity.Speed:
+                        this.csv.WriteRecord<Speed>((Speed) entity);
+                        break;
+                    case LogEntity.Extrusion:
+                        this.csv.WriteRecord<Extrusion>((Extrusion) entity);
+                        break;
+                    case LogEntity.Babystep:
+                        this.csv.WriteRecord<Babystep>((Babystep) entity);
+                        break;
+                    default:
+                        throw new Exception(string.Format("LogEntity not recognized: {0}", entity.ToString()));
+                }
+
+                // Goto next line
+                this.csv.NextRecord();
+            }
+
+            // Flush everything to MemoryStream
             this.csv.Flush();
         }
 
-        void ILogController<Entity>.FlushToFile()
+        void ILogController.FlushToFile()
         {
             // Make sure things is initialized
             if (!this.initialized)
@@ -127,14 +184,13 @@ namespace Meminisse
         {
             this.cache = new MemoryStream(128);
             this.writer = new StreamWriter(this.cache, Encoding.UTF8);
-            this.csv = new CsvWriter(this.writer, CultureInfo.InvariantCulture);
-            this.csv.Context.RegisterClassMap<EntityMap>();
+            this.csv = new CsvWriter(this.writer, this.config);
         }
     
         private void CreatePathAndFile(string filename)
         {
             // Generate path to file
-            this.pathToFile = FilePathGenerator.AppendMonthDay(filename);
+            this.pathToFile = FilePathGenerator.AppendTimeStamp(filename);
             this.pathToFile = FilePathGenerator.AppendDataLogPath(this.pathToFile);
 
             // Make sure directory is created
@@ -142,6 +198,27 @@ namespace Meminisse
 
             // Create the file
             using FileStream fs = File.Create(this.pathToFile);
+        }
+
+        private (ILogEntity, ClassMap) GetClassAndMap(LogEntity entity)
+        {
+            switch(entity)
+            {
+                case LogEntity.Position:
+                    return (new Position(), new PositionMap());
+                case LogEntity.Layer:
+                    return (new Layer(), new LayerMap());
+                case LogEntity.Time:
+                    return (new Time(), new TimeMap());
+                case LogEntity.Speed:
+                    return (new Speed(), new SpeedMap());
+                case LogEntity.Extrusion:
+                    return (new Extrusion(), new ExtrusionMap());
+                case LogEntity.Babystep:
+                    return (new Babystep(), new BabystepMap());
+                default:
+                    throw new Exception(string.Format("LogEntity not recognized: {0}", entity.ToString()));
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Collections.Generic;
 
 using DuetAPIClient;
 using DuetAPI;
@@ -20,7 +21,7 @@ namespace Meminisse
 
         private Logger logger;
 
-        private ILogController<PositionEntity> logFileControl = new CSVLogController<PositionEntity, PositionEntityMap>();
+        private ILogController logFileControl = new CSVLogController();
 
         /// <summary>
         /// Creates an instance of the logging controller.
@@ -43,7 +44,9 @@ namespace Meminisse
             long delayms = 1000L / (long)updateFreq;
 
             // Initialize LogFileController
-            this.logFileControl.Init(await this.GetLogFilename());
+            List<LogEntity> list = new List<LogEntity>(1);
+            list.Add(LogEntity.Position);
+            this.logFileControl.Init(await this.GetLogFilename(), list);
             await MainLoop(delayms);
         }
 
@@ -56,13 +59,13 @@ namespace Meminisse
 
             // Loop until Job is done or the machine is turned off
             MachineStatus status;
-            PositionEntity positionEntity;
+            Position positionEntity;
             do
             {
                 logTimer.Restart();
 
                 positionEntity = await this.dataAccess.requestPosition();
-                status = positionEntity.machineStatus;
+                status = await this.dataAccess.requestStatus();
 
                 // If prints is paused
                 if (status == MachineStatus.Paused || status == MachineStatus.Pausing)
@@ -80,7 +83,9 @@ namespace Meminisse
                 }
 
                 // Write to log
-                this.logFileControl.Add(totalTime.ElapsedMilliseconds, positionEntity);
+                List<ILogEntity> list = new List<ILogEntity>(1);
+                list.Add(positionEntity);
+                this.logFileControl.Add(totalTime.ElapsedMilliseconds, list);
                 this.logFileControl.FlushToFile();
 
                 logTimer.Stop();

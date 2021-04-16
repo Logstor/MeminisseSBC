@@ -14,7 +14,7 @@ namespace Meminisse
         /// </summary>
         /// <param name="filename"></param>
         /// <returns>string with appended month and day</returns>
-        public static string AppendMonthDay(string filename)
+        public static string AppendTimeStamp(string filename)
         {
             DateTime date = DateTime.Now;
             string year = date.Year.ToString("D4");
@@ -36,6 +36,6 @@ namespace Meminisse
             return GetDataLogPath() + filename;
         }
 
-        public static string GetDataLogPath() { return DataLogPath + DateTime.Now.Year.ToString() + "/"; }
+        public static string GetDataLogPath() { return DataLogPath + DateTime.Now.Year.ToString("D4") + "/"; }
     }
 }

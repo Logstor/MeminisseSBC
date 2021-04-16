@@ -14,10 +14,14 @@ namespace Meminisse
         /// </summary>
         /// <param name="connection"></param>
         /// <returns>PositionEntity struct</returns>
-        Task<PositionEntity> requestPosition();
+        Task<Position> requestPosition();
 
         Task<MachineStatus> requestStatus();
 
+        /// <summary>
+        /// Getting the full path of the file currently being printed.
+        /// </summary>
+        /// <returns>string</returns>
         Task<string> requestCurrentFilePath();
     }
 }
