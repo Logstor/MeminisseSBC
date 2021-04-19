@@ -5,7 +5,7 @@ namespace Meminisse
 {
     public static class FilePathGenerator
     {
-        static string DataLogPath = "../data/";
+        static string DataLogPath = "../../../sd/Meminisse/data/";
 
         /// <summary>
         /// Appending the current Month and Day to the back of the given filename.
