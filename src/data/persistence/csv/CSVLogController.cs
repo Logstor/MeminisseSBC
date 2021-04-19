@@ -118,10 +118,10 @@ namespace Meminisse
                     default:
                         throw new Exception(string.Format("LogEntity not recognized: {0}", entity.ToString()));
                 }
-
-                // Goto next line
-                this.csv.NextRecord();
             }
+
+            // Goto next line
+            this.csv.NextRecord();
 
             // Flush everything to MemoryStream
             this.csv.Flush();

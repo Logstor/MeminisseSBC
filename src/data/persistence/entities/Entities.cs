@@ -19,16 +19,61 @@ namespace Meminisse
 
     }
 
+    public class EntityWrap
+    {
+        public Position position { get; private set; }
+        public Speed speed { get; private set; }
+        public Layer layer { get; private set; }
+        public Time time { get; private set; }
+        public Extrusion extrusion { get; private set; }
+        public Babystep babystep { get; private set; }
+
+        private EntityWrap(Position position, Speed speed, Layer layer, Time time, Extrusion extrusion, Babystep babystep)
+        {
+            this.position = position;
+            this.speed = speed;
+            this.layer = layer;
+            this.time = time;
+            this.extrusion = extrusion;
+            this.babystep = babystep;
+        }
+
+        public class Builder
+        {
+            private Position position;
+            private Speed speed;
+            private Layer layer;
+            private Time time;
+            private Extrusion extrusion;
+            private Babystep babystep;
+
+            public EntityWrap Build()
+            {
+                if (position == null || speed == null || layer == null || time == null || extrusion == null || babystep == null)
+                    throw new ArgumentException("Atleast one parameter needs to be not null!");
+
+                return new EntityWrap(this.position, this.speed, this.layer, this.time, extrusion, this.babystep);
+            }
+
+            public Builder Position(Position position) { this.position = position; return this; }
+            public Builder Speed(Speed speed) { this.speed = speed; return this; }
+            public Builder Layer(Layer layer) { this.layer = layer; return this; }
+            public Builder Time(Time time) { this.time = time; return this; }
+            public Builder Extrusion(Extrusion extrusion) { this.extrusion = extrusion; return this; }
+            public Builder Babystep(Babystep babystep) { this.babystep = babystep; return this; }
+        }
+    }
+
     public class Position : ILogEntity
     {
-        public int x { get; set; }
-        public int y { get; set; }
-        public int z { get; set; }
-        public int u { get; set; }
+        public float x { get; set; }
+        public float y { get; set; }
+        public float z { get; set; }
+        public float u { get; set; }
 
         public Position() {}
 
-        public Position(int x, int y, int z, int u)
+        public Position(float x, float y, float z, float u)
         {
             this.x = x;
             this.y = y;
@@ -36,12 +81,12 @@ namespace Meminisse
             this.u = u;
         }
 
-        public Position(List<int> pos)
+        public Position(List<float> pos)
         {
             switch(pos.Count)
             {
                 case 4:
-                    this.y = pos[3];
+                    this.u = pos[3];
                     goto case 3;
                 case 3:
                     this.z = pos[2];
@@ -61,6 +106,16 @@ namespace Meminisse
     {
         public int speedRequested { get; set; }
         public int speedTop { get; set; }
+        public float speedFactor { get; set; }
+
+        public Speed() {}
+
+        public Speed(int requested, int top, float speedFactor)
+        {
+            this.speedRequested = requested;
+            this.speedTop = top;
+            this.speedFactor = speedFactor;
+        }
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Speed; }
     }
@@ -68,28 +123,78 @@ namespace Meminisse
     public class Layer : ILogEntity
     {
         public int currLayer { get; set; }
-        public int layerTime { get; set; }
+        public float layerTimeSec { get; set; }
+
+        public Layer() {}
+
+        public Layer(int currLayer, float layerTime)
+        {
+            this.currLayer = currLayer;
+            this.layerTimeSec = layerTime;
+        }
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Layer; }
     }
 
     public class Time : ILogEntity
     {
-        public int printDuration { get; set; }
+        public int printDurationSec { get; set; }
+        public int pauseDurationSec { get; set; }
+
+        public Time() {}
+
+        public Time(int duration, int pauseDuration)
+        {
+            this.printDurationSec = duration;
+            this.pauseDurationSec = pauseDuration;
+        }
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Time; }
     }
 
     public class Extrusion : ILogEntity
     {
-        public int ExtrusionFactor { get; set; }
+        public float ExtrusionFactor { get; set; }
+
+        public Extrusion() {}
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Extrusion; }
     }
 
     public class Babystep : ILogEntity
     {
-        public int babystep { get; set; }
+        public float xBaby { get; set; }
+        public float yBaby { get; set; }
+        public float zBaby { get; set; }
+        public float uBaby { get; set; }
+
+        public Babystep() {}
+
+        public Babystep(float x, float y, float z, float u)
+        {
+            this.xBaby = x;
+            this.yBaby = y;
+            this.zBaby = z;
+            this.uBaby = u;
+        }
+
+        public Babystep(List<float> baby)
+        {
+            switch(baby.Count)
+            {
+                case 4:
+                    this.uBaby = baby[3];
+                    goto case 3;
+                case 3:
+                    this.zBaby = baby[2];
+                    this.yBaby = baby[1];
+                    this.xBaby = baby[0];
+                    break;
+                default:
+                    throw new Exception(string.Format("Creating Babystep, baby argument needs atleast 3 or max 4 ints: {0}", 
+                        baby.Count));
+            }
+        }
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Babystep; }
     }

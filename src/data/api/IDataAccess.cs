@@ -9,6 +9,8 @@ namespace Meminisse
 {
     public interface IDataAccess 
     {
+        Task<EntityWrap> requestFull();
+
         /// <summary>
         /// Takes a command connection and retrieves the Position asynchronous.
         /// </summary>

@@ -46,6 +46,11 @@ namespace Meminisse
             // Initialize LogFileController
             List<LogEntity> list = new List<LogEntity>(1);
             list.Add(LogEntity.Position);
+            list.Add(LogEntity.Speed);
+            list.Add(LogEntity.Layer);
+            list.Add(LogEntity.Time);
+            list.Add(LogEntity.Extrusion);
+            list.Add(LogEntity.Babystep);
             this.logFileControl.Init(await this.GetLogFilename(), list);
             await MainLoop(delayms);
         }
@@ -59,12 +64,12 @@ namespace Meminisse
 
             // Loop until Job is done or the machine is turned off
             MachineStatus status;
-            Position positionEntity;
+            EntityWrap entities;
             do
             {
                 logTimer.Restart();
 
-                positionEntity = await this.dataAccess.requestPosition();
+                entities = await this.dataAccess.requestFull();
                 status = await this.dataAccess.requestStatus();
 
                 // If prints is paused
@@ -84,7 +89,12 @@ namespace Meminisse
 
                 // Write to log
                 List<ILogEntity> list = new List<ILogEntity>(1);
-                list.Add(positionEntity);
+                list.Add(entities.position);
+                list.Add(entities.speed);
+                list.Add(entities.layer);
+                list.Add(entities.time);
+                list.Add(entities.extrusion);
+                list.Add(entities.babystep);
                 this.logFileControl.Add(totalTime.ElapsedMilliseconds, list);
                 this.logFileControl.FlushToFile();
 

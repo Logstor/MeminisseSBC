@@ -55,6 +55,40 @@ namespace Meminisse
             return instance;
         }
 
+        async Task<EntityWrap> IDataAccess.requestFull()
+        {
+            await this.CheckConnection();
+
+            // Retrieve data
+            int tries = 0;
+            while(true)
+            {
+                try
+                {
+                    // Get data
+                    string json = await this.commandConnection.GetSerializedObjectModel();
+
+                    // Parse data
+                    JObject obj = JObject.Parse(json);
+
+                    (Position position, Babystep babystep) = this.ParsePositionAndBabystep(obj);
+                    return new EntityWrap.Builder()
+                                .Position(position)
+                                .Speed(this.ParseSpeed(obj))
+                                .Layer(this.ParseLayer(obj))
+                                .Time(this.ParseTime(obj))
+                                .Extrusion(this.ParseExtrusion(obj))
+                                .Babystep(babystep)
+                                .Build();
+                }
+                catch (Exception)
+                {
+                    if (++tries == this.maxRetry)
+                        throw;
+                }
+            }
+        }
+
         /// <summary>
         /// Retrieves the position of the Machine.
         /// </summary>
@@ -73,7 +107,7 @@ namespace Meminisse
 
                     // Get Position
                     JObject obj = JObject.Parse(json);
-                    List<int> pos = obj["coords"]["xyz"].ToObject<List<int>>();
+                    List<float> pos = obj["coords"]["xyz"].ToObject<List<float>>();
                     MachineStatus status = this.ParseMachineStatus(obj);
 
                     return new Position(pos);
@@ -175,6 +209,113 @@ namespace Meminisse
                 default:
                     return MachineStatus.Paused;
             }
+        }
+
+        private (Position, Babystep) ParsePositionAndBabystep(JObject obj)
+        {
+            // Initial Position
+            Position pos = new Position(new List<float>{.0f, .0f, .0f, .0f});
+            Babystep baby = new Babystep(new List<float>{.0f, .0f, .0f, .0f});
+
+            // JTokens
+            JToken axes;
+            JToken curr;
+
+            // Get Axis
+            axes = obj.SelectToken("move.axes");
+            if ( axes != null )
+            {
+                int currAxis = 0;
+                float currPos = 0;
+                float currBaby = 0;
+                string currLetter;
+                do 
+                {
+                    // The use of [] out of index throws
+                    try { curr = axes[currAxis++]; }
+                    catch (Exception) { break; }
+
+                    // Break if we don't find anymore axis
+                    if (curr == null)
+                        break;
+
+                    currPos = curr.SelectToken("machinePosition").ToObject<float>();
+                    currBaby = curr.SelectToken("babystep").ToObject<float>();
+                    currLetter = curr.SelectToken("letter").ToObject<string>();
+
+                    switch(currLetter)
+                    {
+                        case "X":
+                            pos.x = currPos;
+                            baby.xBaby = currBaby;
+                            break;
+                        case "Y":
+                            pos.y = currPos;
+                            baby.yBaby = currBaby;
+                            break;
+                        case "Z":
+                            pos.z = currPos;
+                            baby.zBaby = currBaby;
+                            break;
+                        case "U":
+                            pos.u = currPos;
+                            baby.uBaby = currBaby;
+                            break;
+                        default:
+                            throw new Exception("Couldn´t parse axis");
+                    }
+                } while(true);
+            }
+
+            return (pos, baby);
+        }
+
+        private Speed ParseSpeed(JObject obj)
+        {
+            Speed speed = new Speed(0, 0, 0);
+
+            // Parse
+            JToken currentMove = obj.SelectToken("move.currentMove");
+            if ( currentMove != null )
+            {
+                speed.speedFactor = obj["move"]["speedFactor"].ToObject<float>();
+                speed.speedRequested = currentMove.SelectToken("requestedSpeed").ToObject<int>();
+                speed.speedTop = currentMove.SelectToken("topSpeed").ToObject<int>();
+            }
+
+            return speed;
+        }
+
+        private Layer ParseLayer(JObject obj)
+        {
+            Layer layer = new Layer(0, 0);
+
+            // Parse
+            layer.currLayer = obj["job"]["layer"].ToObject<int>();
+            layer.layerTimeSec = obj["job"]["layerTime"].ToObject<float>();
+
+            return layer;
+        }
+
+        private Time ParseTime(JObject obj)
+        {
+            Time time = new Time(0, 0);
+
+            // Parse
+            time.printDurationSec = obj["job"]["duration"].ToObject<int>();
+            time.pauseDurationSec = obj["job"]["pauseDuration"].ToObject<int>();
+
+            return time;
+        }
+
+        private Extrusion ParseExtrusion(JObject obj)
+        {
+            Extrusion extrusion = new Extrusion();
+
+            // Parse
+            extrusion.ExtrusionFactor = obj["move"]["extruders"][0]["factor"].ToObject<float>();
+
+            return extrusion;
         }
 
         private async Task CheckConnection()
