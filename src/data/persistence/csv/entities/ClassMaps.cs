@@ -49,6 +49,9 @@ namespace Meminisse
         public BabystepMap()
         {
             AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.xBaby).Ignore();
+            Map(m => m.yBaby).Ignore();
+            Map(m => m.uBaby).Ignore();
         }
     }
 }
