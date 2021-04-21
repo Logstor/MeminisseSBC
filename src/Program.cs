@@ -18,7 +18,9 @@ namespace Meminisse
         /// Logger instance which is used for logging through the whole application
         /// </summary>
         /// <returns></returns>
-        static Logger logger = new Logger(LogLevel.TRACE);
+        static Logger logger;
+
+        static Config config;
 
         /// <summary>
         /// 
@@ -79,6 +81,12 @@ namespace Meminisse
                     running = false;
                 }
             };
+
+            // Initialize configuration
+            config = Config.instance;
+
+            // Initialize logger
+            logger = new Logger(config.LogLevel);
 
             // Start actual main
             MainTask(args).Wait();
