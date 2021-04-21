@@ -86,7 +86,7 @@ namespace Meminisse
             config = Config.instance;
 
             // Initialize logger
-            logger = new Logger(config.LogLevel);
+            logger = new Logger(config.ConsoleLogLevel);
 
             // Start actual main
             MainTask(args).Wait();
@@ -131,9 +131,9 @@ namespace Meminisse
                     // If machine is processing, then start logging
                     if (status == MachineStatus.Processing)
                     {
-                        logger.T("Starting logging");
+                        logger.T("Machine Processing");
                         LogController log = new LogController(logger);
-                        await log.start(updateFreq: 2);
+                        await log.start();
                     }
                 }
                 catch(JsonException e)
