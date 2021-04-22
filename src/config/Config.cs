@@ -5,8 +5,8 @@ namespace Meminisse
     public class Config
     {
         // Fields
-        public static string ConfigurationPath { get; set; } = "../conf/";
-        public static string ConfigurationFilename { get; set; } = "config.json";
+        public static string ConfigurationPath { get; set; } = "../../../sd/sys/";
+        public static string ConfigurationFilename { get; set; } = "MeminisseConfig.json";
 
         /// <summary>
         /// Minimum loglevel of the logger.
