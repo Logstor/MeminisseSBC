@@ -79,7 +79,7 @@ namespace Meminisse
                                 .Time(this.ParseTime(obj))
                                 .Extrusion(this.ParseExtrusion(obj))
                                 .Babystep(babystep)
-                                .Build();
+                                .Build(this.ParseMachineStatus(obj));
                 }
                 catch (Exception)
                 {
@@ -108,7 +108,7 @@ namespace Meminisse
                     // Get Position
                     JObject obj = JObject.Parse(json);
                     List<float> pos = obj["coords"]["xyz"].ToObject<List<float>>();
-                    MachineStatus status = this.ParseMachineStatus(obj);
+                    MachineStatus status = this.ParseMachineStatusM408S4(obj);
 
                     return new Position(pos);
                 }
@@ -136,7 +136,7 @@ namespace Meminisse
 
                     // Get Status
                     JObject obj = JObject.Parse(json);
-                    return this.ParseMachineStatus(obj);
+                    return this.ParseMachineStatusM408S4(obj);
                 }
                 catch (Exception)
                 {
@@ -196,7 +196,7 @@ namespace Meminisse
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>MachineStatus</returns>
-        private MachineStatus ParseMachineStatus(JObject obj)
+        private MachineStatus ParseMachineStatusM408S4(JObject obj)
         {
             switch(obj["status"].ToObject<string>())
             {
@@ -208,6 +208,31 @@ namespace Meminisse
                     return MachineStatus.Processing;
                 default:
                     return MachineStatus.Paused;
+            }
+        }
+
+        private MachineStatus ParseMachineStatus(JObject obj)
+        {
+            switch(obj["state"]["status"].ToObject<string>())
+            {
+                case "idle":
+                    return MachineStatus.Idle;
+                case "paused":
+                    return MachineStatus.Paused;
+                case "starting":
+                    return MachineStatus.Starting;
+                case "processing":
+                    return MachineStatus.Processing;
+                case "resuming":
+                    return MachineStatus.Resuming;
+                case "halted":
+                    return MachineStatus.Halted;
+                case "off":
+                    return MachineStatus.Off;
+                case "updating":
+                    return MachineStatus.Updating;
+                default:
+                    return MachineStatus.Paused; 
             }
         }
 

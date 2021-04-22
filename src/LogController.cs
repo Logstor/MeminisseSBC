@@ -54,17 +54,15 @@ namespace Meminisse
             Stopwatch logTimer = new();
 
             // Loop until Job is done or the machine is turned off
-            MachineStatus status;
             EntityWrap entities;
             do
             {
+                // Restart log timer and get full update
                 logTimer.Restart();
-
                 entities = await this.dataAccess.requestFull();
-                status = await this.dataAccess.requestStatus();
 
                 // If prints is paused
-                if (status == MachineStatus.Paused || status == MachineStatus.Pausing)
+                if (entities.machineStatus == MachineStatus.Paused || entities.machineStatus == MachineStatus.Pausing)
                 {
                     this.logger.T("Machine Paused");
                     Thread.Sleep((int)this.logDelayMs);
@@ -72,7 +70,7 @@ namespace Meminisse
                 }
 
                 // If print is done or halted then break
-                else if (status == MachineStatus.Idle || status == MachineStatus.Off || status == MachineStatus.Halted)
+                else if (entities.machineStatus == MachineStatus.Idle || entities.machineStatus == MachineStatus.Off || entities.machineStatus == MachineStatus.Halted)
                 {
                     this.logger.T("Machine Idle");
                     break;

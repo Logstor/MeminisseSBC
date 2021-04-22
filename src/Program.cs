@@ -129,9 +129,9 @@ namespace Meminisse
                     logger.T(string.Format("Status {0}", status));
 
                     // If machine is processing, then start logging
-                    if (status == MachineStatus.Processing)
+                    if (status == MachineStatus.Starting || status == MachineStatus.Processing)
                     {
-                        logger.T("Machine Processing");
+                        logger.T("Machine Starting or Processing");
                         LogController log = new LogController(logger);
                         await log.start();
                     }

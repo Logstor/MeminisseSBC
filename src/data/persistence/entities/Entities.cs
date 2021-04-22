@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+using DuetAPI.ObjectModel;
+
 namespace Meminisse
 {
     public interface ILogEntity
@@ -10,6 +12,7 @@ namespace Meminisse
 
     public enum LogEntity
     {
+        Status,
         Position,
         Layer,
         Time,
@@ -21,6 +24,7 @@ namespace Meminisse
 
     public class EntityWrap
     {
+        public MachineStatus machineStatus { get; private set; }
         public Position position { get; private set; }
         public Speed speed { get; private set; }
         public Layer layer { get; private set; }
@@ -28,8 +32,9 @@ namespace Meminisse
         public Extrusion extrusion { get; private set; }
         public Babystep babystep { get; private set; }
 
-        private EntityWrap(Position position, Speed speed, Layer layer, Time time, Extrusion extrusion, Babystep babystep)
+        private EntityWrap(MachineStatus status, Position position, Speed speed, Layer layer, Time time, Extrusion extrusion, Babystep babystep)
         {
+            this.machineStatus = status;
             this.position = position;
             this.speed = speed;
             this.layer = layer;
@@ -47,14 +52,14 @@ namespace Meminisse
             private Extrusion extrusion;
             private Babystep babystep;
 
-            public EntityWrap Build()
+            public EntityWrap Build(MachineStatus machineStatus)
             {
                 if (position == null || speed == null || layer == null || time == null || extrusion == null || babystep == null)
                     throw new ArgumentException("Atleast one parameter needs to be not null!");
 
-                return new EntityWrap(this.position, this.speed, this.layer, this.time, extrusion, this.babystep);
+                return new EntityWrap(machineStatus, this.position, this.speed, this.layer, this.time, extrusion, this.babystep);
             }
-
+            
             public Builder Position(Position position) { this.position = position; return this; }
             public Builder Speed(Speed speed) { this.speed = speed; return this; }
             public Builder Layer(Layer layer) { this.layer = layer; return this; }
