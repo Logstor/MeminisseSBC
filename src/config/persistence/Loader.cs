@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 
@@ -11,16 +12,23 @@ namespace Meminisse.Configuration
         {
             try 
             {
-                string json = File.ReadAllText(fullPath);
-                return JsonConvert.DeserializeObject<Config>(json);
+                // Check if path and file exists
+                if ( File.Exists(fullPath) )
+                {
+                    string json = File.ReadAllText(fullPath);
+                    return JsonConvert.DeserializeObject<Config>(json);
+                }
+                else
+                {
+                   return CreateEverything(fullPath);
+                }
             }
-            catch (DirectoryNotFoundException)    
-            { 
-                return CreateEverything(fullPath); 
-            }
-            catch (FileNotFoundException)         
-            { 
-                return CreateEverything(fullPath); 
+            catch (Exception e)    
+            {
+                Console.WriteLine("ERROR Loading or Creating configuration file!");
+                Console.WriteLine(e.ToString());
+                Console.WriteLine("Continuous with default configuration");
+                return new Config();
             }
         }
 
