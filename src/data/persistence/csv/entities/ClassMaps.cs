@@ -20,14 +20,6 @@ namespace Meminisse
         }
     }
 
-    public sealed class LayerMap : ClassMap<Layer>
-    {
-        public LayerMap()
-        {
-            AutoMap(CultureInfo.InvariantCulture);
-        }
-    }
-
     public sealed class TimeMap : ClassMap<Time>
     {
         public TimeMap()

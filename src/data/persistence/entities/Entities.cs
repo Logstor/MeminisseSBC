@@ -27,17 +27,15 @@ namespace Meminisse
         public MachineStatus machineStatus { get; private set; }
         public Position position { get; private set; }
         public Speed speed { get; private set; }
-        public Layer layer { get; private set; }
         public Time time { get; private set; }
         public Extrusion extrusion { get; private set; }
         public Babystep babystep { get; private set; }
 
-        private EntityWrap(MachineStatus status, Position position, Speed speed, Layer layer, Time time, Extrusion extrusion, Babystep babystep)
+        private EntityWrap(MachineStatus status, Position position, Speed speed, Time time, Extrusion extrusion, Babystep babystep)
         {
             this.machineStatus = status;
             this.position = position;
             this.speed = speed;
-            this.layer = layer;
             this.time = time;
             this.extrusion = extrusion;
             this.babystep = babystep;
@@ -47,22 +45,20 @@ namespace Meminisse
         {
             private Position position;
             private Speed speed;
-            private Layer layer;
             private Time time;
             private Extrusion extrusion;
             private Babystep babystep;
 
             public EntityWrap Build(MachineStatus machineStatus)
             {
-                if (position == null || speed == null || layer == null || time == null || extrusion == null || babystep == null)
+                if (position == null || speed == null || time == null || extrusion == null || babystep == null)
                     throw new ArgumentException("Atleast one parameter needs to be not null!");
 
-                return new EntityWrap(machineStatus, this.position, this.speed, this.layer, this.time, extrusion, this.babystep);
+                return new EntityWrap(machineStatus, this.position, this.speed, this.time, extrusion, this.babystep);
             }
             
             public Builder Position(Position position) { this.position = position; return this; }
             public Builder Speed(Speed speed) { this.speed = speed; return this; }
-            public Builder Layer(Layer layer) { this.layer = layer; return this; }
             public Builder Time(Time time) { this.time = time; return this; }
             public Builder Extrusion(Extrusion extrusion) { this.extrusion = extrusion; return this; }
             public Builder Babystep(Babystep babystep) { this.babystep = babystep; return this; }
@@ -123,22 +119,6 @@ namespace Meminisse
         }
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Speed; }
-    }
-
-    public class Layer : ILogEntity
-    {
-        public int currLayer { get; set; }
-        public float layerTimeSec { get; set; }
-
-        public Layer() {}
-
-        public Layer(int currLayer, float layerTime)
-        {
-            this.currLayer = currLayer;
-            this.layerTimeSec = layerTime;
-        }
-
-        LogEntity ILogEntity.GetEntityType() { return LogEntity.Layer; }
     }
 
     public class Time : ILogEntity

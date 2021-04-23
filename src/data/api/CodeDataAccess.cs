@@ -66,16 +66,17 @@ namespace Meminisse
                 try
                 {
                     // Get data
+                    this.logger.T("Requesting serialized object model");
                     string json = await this.commandConnection.GetSerializedObjectModel();
 
                     // Parse data
+                    this.logger.T("Parsing to JObject");
                     JObject obj = JObject.Parse(json);
 
                     (Position position, Babystep babystep) = this.ParsePositionAndBabystep(obj);
                     return new EntityWrap.Builder()
                                 .Position(position)
                                 .Speed(this.ParseSpeed(obj))
-                                .Layer(this.ParseLayer(obj))
                                 .Time(this.ParseTime(obj))
                                 .Extrusion(this.ParseExtrusion(obj))
                                 .Babystep(babystep)
@@ -213,6 +214,7 @@ namespace Meminisse
 
         private MachineStatus ParseMachineStatus(JObject obj)
         {
+            this.logger.T("Parsing Machine Status");
             switch(obj["state"]["status"].ToObject<string>())
             {
                 case "idle":
@@ -238,6 +240,7 @@ namespace Meminisse
 
         private (Position, Babystep) ParsePositionAndBabystep(JObject obj)
         {
+            this.logger.T("Parsing Position and Babystep");
             // Initial Position
             Position pos = new Position(new List<float>{.0f, .0f, .0f, .0f});
             Babystep baby = new Babystep(new List<float>{.0f, .0f, .0f, .0f});
@@ -297,6 +300,7 @@ namespace Meminisse
 
         private Speed ParseSpeed(JObject obj)
         {
+            this.logger.T("Parsing Speed");
             Speed speed = new Speed(0, 0, 0);
 
             // Parse
@@ -311,19 +315,9 @@ namespace Meminisse
             return speed;
         }
 
-        private Layer ParseLayer(JObject obj)
-        {
-            Layer layer = new Layer(0, 0);
-
-            // Parse
-            layer.currLayer = obj["job"]["layer"].ToObject<int>();
-            layer.layerTimeSec = obj["job"]["layerTime"].ToObject<float>();
-
-            return layer;
-        }
-
         private Time ParseTime(JObject obj)
         {
+            this.logger.T("Parsing Time");
             Time time = new Time(0, 0);
 
             // Parse
@@ -335,6 +329,7 @@ namespace Meminisse
 
         private Extrusion ParseExtrusion(JObject obj)
         {
+            this.logger.T("Parsing Extrusion");
             Extrusion extrusion = new Extrusion();
 
             // Parse

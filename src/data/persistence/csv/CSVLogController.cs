@@ -100,9 +100,6 @@ namespace Meminisse
                     case LogEntity.Position:
                         this.csv.WriteRecord<Position>((Position) entity);
                         break;
-                    case LogEntity.Layer:
-                        this.csv.WriteRecord<Layer>((Layer) entity);
-                        break;
                     case LogEntity.Time:
                         this.csv.WriteRecord<Time>((Time) entity);
                         break;
@@ -206,8 +203,6 @@ namespace Meminisse
             {
                 case LogEntity.Position:
                     return (new Position(), new PositionMap());
-                case LogEntity.Layer:
-                    return (new Layer(), new LayerMap());
                 case LogEntity.Time:
                     return (new Time(), new TimeMap());
                 case LogEntity.Speed:

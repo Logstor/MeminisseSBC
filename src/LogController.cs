@@ -42,7 +42,9 @@ namespace Meminisse
             this.logger.D(string.Format("Starting logging with {0} milliseconds delay", this.logDelayMs));
 
             // Initialize LogFileController
+            this.logger.T("Initializing LogController");
             this.logFileControl.Init(await this.GetLogFilename(), CreateInitLogList());
+            this.logger.T("Starting MainLoop");
             await MainLoop();
         }
 
@@ -59,6 +61,7 @@ namespace Meminisse
             {
                 // Restart log timer and get full update
                 logTimer.Restart();
+                this.logger.T("Requesting full Data model");
                 entities = await this.dataAccess.requestFull();
 
                 // If prints is paused
@@ -118,9 +121,6 @@ namespace Meminisse
 
             if (Config.instance.LogSpeed)
                 list.Add(LogEntity.Speed);
-
-            if (Config.instance.LogLayer)
-                list.Add(LogEntity.Layer);
             
             if (Config.instance.LogTime)
                 list.Add(LogEntity.Time);
@@ -143,9 +143,6 @@ namespace Meminisse
 
             if (Config.instance.LogSpeed)
                 list.Add(entities.speed);
-
-            if (Config.instance.LogLayer)
-                list.Add(entities.layer);
 
             if (Config.instance.LogTime)
                 list.Add(entities.time);

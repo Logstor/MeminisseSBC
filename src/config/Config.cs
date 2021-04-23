@@ -45,12 +45,6 @@ namespace Meminisse
         public bool LogExtrusion { get; set; } = true;
 
         /// <summary>
-        /// Should Layer information be logged?
-        /// </summary>
-        /// <value></value>
-        public bool LogLayer { get; set; } = true;
-
-        /// <summary>
         /// Should babystep be logged?
         /// </summary>
         /// <value></value>
