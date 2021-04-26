@@ -18,7 +18,9 @@ namespace Meminisse
         /// Logger instance which is used for logging through the whole application
         /// </summary>
         /// <returns></returns>
-        static Logger logger = new Logger(LogLevel.TRACE);
+        static Logger logger;
+
+        static Config config;
 
         /// <summary>
         /// 
@@ -80,6 +82,12 @@ namespace Meminisse
                 }
             };
 
+            // Initialize configuration
+            config = Config.instance;
+
+            // Initialize logger
+            logger = new Logger(config.ConsoleLogLevel);
+
             // Start actual main
             MainTask(args).Wait();
             return 0;
@@ -121,11 +129,11 @@ namespace Meminisse
                     logger.T(string.Format("Status {0}", status));
 
                     // If machine is processing, then start logging
-                    if (status == MachineStatus.Processing)
+                    if (status == MachineStatus.Starting || status == MachineStatus.Processing)
                     {
-                        logger.T("Starting logging");
+                        logger.T("Machine Starting or Processing");
                         LogController log = new LogController(logger);
-                        await log.start(updateFreq: 2);
+                        await log.start();
                     }
                 }
                 catch(JsonException e)

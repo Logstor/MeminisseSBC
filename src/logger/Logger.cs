@@ -11,6 +11,18 @@ public enum LogLevel { TRACE = 0, DEBUG = 1, INFO = 2, WARNING = 3, ERROR = 4 };
 /// </summary>
 public class Logger
 {
+    private static Logger _instance;
+    public static Logger instance 
+    {
+        get
+        {
+            if ( _instance == null )
+                throw new Exception("Logger wasn't initialized!");
+            return _instance;
+        }
+        private set { _instance = value; }
+    }
+
     private Mutex mut = new Mutex(initiallyOwned: false);
 
     private LogLevel logLevel { get; set; }
@@ -18,6 +30,7 @@ public class Logger
     public Logger(LogLevel logLevel = LogLevel.WARNING)
     {
         this.logLevel = logLevel;
+        Logger.instance = this;
     }
 
     /// <summary>

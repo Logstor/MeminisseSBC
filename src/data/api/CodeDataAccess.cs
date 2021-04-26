@@ -66,20 +66,21 @@ namespace Meminisse
                 try
                 {
                     // Get data
+                    this.logger.T("Requesting serialized object model");
                     string json = await this.commandConnection.GetSerializedObjectModel();
 
                     // Parse data
+                    this.logger.T("Parsing to JObject");
                     JObject obj = JObject.Parse(json);
 
                     (Position position, Babystep babystep) = this.ParsePositionAndBabystep(obj);
                     return new EntityWrap.Builder()
                                 .Position(position)
                                 .Speed(this.ParseSpeed(obj))
-                                .Layer(this.ParseLayer(obj))
                                 .Time(this.ParseTime(obj))
                                 .Extrusion(this.ParseExtrusion(obj))
                                 .Babystep(babystep)
-                                .Build();
+                                .Build(this.ParseMachineStatus(obj));
                 }
                 catch (Exception)
                 {
@@ -108,7 +109,7 @@ namespace Meminisse
                     // Get Position
                     JObject obj = JObject.Parse(json);
                     List<float> pos = obj["coords"]["xyz"].ToObject<List<float>>();
-                    MachineStatus status = this.ParseMachineStatus(obj);
+                    MachineStatus status = this.ParseMachineStatusM408S4(obj);
 
                     return new Position(pos);
                 }
@@ -136,7 +137,7 @@ namespace Meminisse
 
                     // Get Status
                     JObject obj = JObject.Parse(json);
-                    return this.ParseMachineStatus(obj);
+                    return this.ParseMachineStatusM408S4(obj);
                 }
                 catch (Exception)
                 {
@@ -196,7 +197,7 @@ namespace Meminisse
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>MachineStatus</returns>
-        private MachineStatus ParseMachineStatus(JObject obj)
+        private MachineStatus ParseMachineStatusM408S4(JObject obj)
         {
             switch(obj["status"].ToObject<string>())
             {
@@ -211,8 +212,36 @@ namespace Meminisse
             }
         }
 
+        private MachineStatus ParseMachineStatus(JObject obj)
+        {
+            this.logger.T("Parsing Machine Status");
+            switch(obj["state"]["status"].ToObject<string>())
+            {
+                case "idle":
+                    return MachineStatus.Idle;
+                case "paused":
+                    return MachineStatus.Paused;
+                case "starting":
+                    return MachineStatus.Starting;
+                case "processing":
+                    return MachineStatus.Processing;
+                case "resuming":
+                    return MachineStatus.Resuming;
+                case "halted":
+                    return MachineStatus.Halted;
+                case "off":
+                    return MachineStatus.Off;
+                case "updating":
+                    return MachineStatus.Updating;
+                default:
+                    return MachineStatus.Paused; 
+            }
+        }
+
         private (Position, Babystep) ParsePositionAndBabystep(JObject obj)
         {
+            this.logger.T("Parsing Position and Babystep");
+
             // Initial Position
             Position pos = new Position(new List<float>{.0f, .0f, .0f, .0f});
             Babystep baby = new Babystep(new List<float>{.0f, .0f, .0f, .0f});
@@ -272,6 +301,7 @@ namespace Meminisse
 
         private Speed ParseSpeed(JObject obj)
         {
+            this.logger.T("Parsing Speed");
             Speed speed = new Speed(0, 0, 0);
 
             // Parse
@@ -286,19 +316,9 @@ namespace Meminisse
             return speed;
         }
 
-        private Layer ParseLayer(JObject obj)
-        {
-            Layer layer = new Layer(0, 0);
-
-            // Parse
-            layer.currLayer = obj["job"]["layer"].ToObject<int>();
-            layer.layerTimeSec = obj["job"]["layerTime"].ToObject<float>();
-
-            return layer;
-        }
-
         private Time ParseTime(JObject obj)
         {
+            this.logger.T("Parsing Time");
             Time time = new Time(0, 0);
 
             // Parse
@@ -310,6 +330,7 @@ namespace Meminisse
 
         private Extrusion ParseExtrusion(JObject obj)
         {
+            this.logger.T("Parsing Extrusion");
             Extrusion extrusion = new Extrusion();
 
             // Parse

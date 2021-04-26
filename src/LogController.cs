@@ -21,13 +21,13 @@ namespace Meminisse
 
         private Logger logger;
 
+        private long logDelayMs = 60000L / Config.instance.LogsPrMin;
+
         private ILogController logFileControl = new CSVLogController();
 
         /// <summary>
         /// Creates an instance of the logging controller.
         /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="initialState"></param>
         public LogController(Logger logger)
         {
             this.logger = logger;
@@ -37,25 +37,18 @@ namespace Meminisse
         /// <summary>
         /// Starts the logging loop.
         /// </summary>
-        /// <param name="updateFreq">How many updates per second</param>
-        public async Task start(int updateFreq)
+        public async Task start()
         {
-            // Calculate delay
-            long delayms = 1000L / (long)updateFreq;
+            this.logger.D(string.Format("Starting logging with {0} milliseconds delay", this.logDelayMs));
 
             // Initialize LogFileController
-            List<LogEntity> list = new List<LogEntity>(1);
-            list.Add(LogEntity.Position);
-            list.Add(LogEntity.Speed);
-            list.Add(LogEntity.Layer);
-            list.Add(LogEntity.Time);
-            list.Add(LogEntity.Extrusion);
-            list.Add(LogEntity.Babystep);
-            this.logFileControl.Init(await this.GetLogFilename(), list);
-            await MainLoop(delayms);
+            this.logger.T("Initializing LogController");
+            this.logFileControl.Init(await this.GetLogFilename(), CreateInitLogList());
+            this.logger.T("Starting MainLoop");
+            await MainLoop();
         }
 
-        private async Task MainLoop(long delayms)
+        private async Task MainLoop()
         {
             // Setup timing
             Stopwatch totalTime = new();
@@ -63,53 +56,45 @@ namespace Meminisse
             Stopwatch logTimer = new();
 
             // Loop until Job is done or the machine is turned off
-            MachineStatus status;
             EntityWrap entities;
             do
             {
+                // Restart log timer and get full update
                 logTimer.Restart();
-
+                this.logger.T("Requesting full Data model");
                 entities = await this.dataAccess.requestFull();
-                status = await this.dataAccess.requestStatus();
 
                 // If prints is paused
-                if (status == MachineStatus.Paused || status == MachineStatus.Pausing)
+                if (entities.machineStatus == MachineStatus.Paused || entities.machineStatus == MachineStatus.Pausing)
                 {
                     this.logger.T("Machine Paused");
-                    Thread.Sleep((int)delayms);
+                    Thread.Sleep((int)this.logDelayMs);
                     continue;
                 }
 
                 // If print is done or halted then break
-                else if (status == MachineStatus.Idle || status == MachineStatus.Off || status == MachineStatus.Halted)
+                else if (entities.machineStatus == MachineStatus.Idle || entities.machineStatus == MachineStatus.Off || entities.machineStatus == MachineStatus.Halted)
                 {
                     this.logger.T("Machine Idle");
                     break;
                 }
 
                 // Write to log
-                List<ILogEntity> list = new List<ILogEntity>(1);
-                list.Add(entities.position);
-                list.Add(entities.speed);
-                list.Add(entities.layer);
-                list.Add(entities.time);
-                list.Add(entities.extrusion);
-                list.Add(entities.babystep);
-                this.logFileControl.Add(totalTime.ElapsedMilliseconds, list);
+                this.logFileControl.Add(totalTime.ElapsedMilliseconds, CreateLogList(entities));
                 this.logFileControl.FlushToFile();
 
                 logTimer.Stop();
                 this.logger.T(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
 
                 // Wait if we're before time
-                if (!(logTimer.ElapsedMilliseconds >= delayms))
-                    Thread.Sleep((int)(delayms - logTimer.ElapsedMilliseconds));
+                if (! (logTimer.ElapsedMilliseconds >= this.logDelayMs) )
+                    Thread.Sleep((int)(this.logDelayMs - logTimer.ElapsedMilliseconds));
 
                 // Otherwise warn the we can't reach the desired frequency
                 else
                     this.logger.W(
                         string.Format("We can't log this fast! Current log time: {0} ms - Max log time: {1} ms",
-                            logTimer.ElapsedMilliseconds, delayms));
+                            logTimer.ElapsedMilliseconds, this.logDelayMs));
             }
             while (true);
         }
@@ -125,6 +110,50 @@ namespace Meminisse
 
             // Add extension
             return filename + ".log";
+        }
+
+        private List<LogEntity> CreateInitLogList()
+        {
+            List<LogEntity> list = new List<LogEntity>(10);
+
+            if (Config.instance.LogPosition)
+                list.Add(LogEntity.Position);
+
+            if (Config.instance.LogSpeed)
+                list.Add(LogEntity.Speed);
+            
+            if (Config.instance.LogTime)
+                list.Add(LogEntity.Time);
+            
+            if (Config.instance.LogExtrusion)
+                list.Add(LogEntity.Extrusion);
+            
+            if (Config.instance.LogBaby)
+                list.Add(LogEntity.Babystep);
+            
+            return list;
+        }
+
+        private List<ILogEntity> CreateLogList(EntityWrap entities)
+        {
+            List<ILogEntity> list = new List<ILogEntity>(10);
+
+            if (Config.instance.LogPosition)
+                list.Add(entities.position);
+
+            if (Config.instance.LogSpeed)
+                list.Add(entities.speed);
+
+            if (Config.instance.LogTime)
+                list.Add(entities.time);
+
+            if (Config.instance.LogExtrusion)
+                list.Add(entities.extrusion);
+
+            if (Config.instance.LogBaby)
+                list.Add(entities.babystep);
+
+            return list;
         }
     }
 }
