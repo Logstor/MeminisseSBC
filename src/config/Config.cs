@@ -5,8 +5,10 @@ namespace Meminisse
     public class Config
     {
         // Fields
-        public static string ConfigurationPath { get; set; } = "../../../sd/sys/";
+        public static string GeneralPath { get; set; } = "../../../sd/sys/COBOD/Meminisse/";
+        public static string ConfigurationPath { get; set; } = Path.Combine(GeneralPath, "");
         public static string ConfigurationFilename { get; set; } = "MeminisseConfig.json";
+        public static string DataPath { get; set; } = Path.Combine(GeneralPath, "data");
 
         /// <summary>
         /// Minimum loglevel of the logger.

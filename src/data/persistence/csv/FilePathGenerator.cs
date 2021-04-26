@@ -5,8 +5,6 @@ namespace Meminisse
 {
     public static class FilePathGenerator
     {
-        static string DataLogPath = "../../../sd/Meminisse/data/";
-
         /// <summary>
         /// Appending the current Month and Day to the back of the given filename.
         /// 
@@ -33,9 +31,9 @@ namespace Meminisse
         /// <returns>string with the whole path ending on the given filename</returns>
         public static string AppendDataLogPath(string filename)
         {
-            return GetDataLogPath() + filename;
+            return Path.Combine(GetDataLogPath(), filename);
         }
 
-        public static string GetDataLogPath() { return DataLogPath + DateTime.Now.Year.ToString("D4") + "/"; }
+        public static string GetDataLogPath() { return Path.Combine(Config.DataPath, DateTime.Now.Year.ToString("D4")); }
     }
 }
