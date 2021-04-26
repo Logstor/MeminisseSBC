@@ -120,7 +120,7 @@ namespace Meminisse
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Speed; }
     }
-
+    
     public class Time : ILogEntity
     {
         public int printDurationSec { get; set; }

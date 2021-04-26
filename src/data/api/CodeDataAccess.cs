@@ -241,6 +241,7 @@ namespace Meminisse
         private (Position, Babystep) ParsePositionAndBabystep(JObject obj)
         {
             this.logger.T("Parsing Position and Babystep");
+
             // Initial Position
             Position pos = new Position(new List<float>{.0f, .0f, .0f, .0f});
             Babystep baby = new Babystep(new List<float>{.0f, .0f, .0f, .0f});
