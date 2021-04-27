@@ -40,27 +40,6 @@ namespace Meminisse
         /// </summary>
         static private CancellationToken cancellationToken = CancelSource.Token;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        static private EndpointController epHandle = new EndpointController(cancellationToken: cancellationToken);
-
-        /// <summary>
-        ///  HTTP Endpoint Namespace
-        /// </summary>
-        const string ns = "COBOD";
-
-        /// <summary>
-        ///  HTTP Endpoint Path
-        /// </summary>
-        const string path = "Log";
-
-        /// <summary>
-        /// Type of the HTTPEndpoint
-        /// </summary>
-        const HttpEndpointType endpointType = HttpEndpointType.GET;
-
         public static int Main(string[] args)
         {
             // Deal with program termination requests (SIGTERM and Ctrl+C)
@@ -99,24 +78,6 @@ namespace Meminisse
 
             // Init DataAccess - Inject API here
             dataAccess = CodeDataAccess.getInstance(logger);
-
-            // Init EndpointController
-            epHandle.Init();
-
-            // Create endpoint
-            EndpointWrapper endpoint;
-            try {
-                // Create HTTPEndpoint
-                endpoint = await epHandle.CreateEndpoint(ns, path);
-
-                // Add eventhandler
-                endpoint.socket.OnEndpointRequestReceived += Handler;
-
-                logger.D("Endpoint created!");
-            }
-            catch (SocketException e) {
-                logger.E(string.Format("Error creating Custom HTTPEndpoint\nException: {0}", e.ToString()));
-            }
 
             // Retrieve state
             MachineStatus status;
