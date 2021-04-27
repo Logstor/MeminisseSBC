@@ -6,6 +6,18 @@ namespace Meminisse
     public static class FilePathGenerator
     {
         /// <summary>
+        /// Appending data log path and the current Month and Day to the back of the given filename.
+        /// 
+        /// Path + Year-Month-Day-Time--filename
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public static string AppendTimeAndPath(string filename)
+        {
+            return Path.Combine(GetDataLogPath(), AppendTimeStamp(filename));
+        }
+
+        /// <summary>
         /// Appending the current Month and Day to the back of the given filename.
         /// 
         /// Year-Month-Day-Time--filename

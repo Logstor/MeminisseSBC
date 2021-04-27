@@ -322,8 +322,15 @@ namespace Meminisse
             Time time = new Time(0, 0);
 
             // Parse
-            time.printDurationSec = obj["job"]["duration"].ToObject<int>();
-            time.pauseDurationSec = obj["job"]["pauseDuration"].ToObject<int>();
+            JToken printDuration = obj["job"]["duration"];
+            JToken pauseDuration = obj["job"]["pauseDuration"];
+
+            // Try to convert - this should be improved in the future
+            try { time.printDurationSec = printDuration.ToObject<int>(); }
+            catch (Exception) { time.printDurationSec = -1; }
+
+            try { time.pauseDurationSec = pauseDuration.ToObject<int>(); }
+            catch (Exception) { time.pauseDurationSec = -1; }
 
             return time;
         }
