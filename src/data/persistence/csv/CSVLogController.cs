@@ -190,11 +190,8 @@ namespace Meminisse
             this.pathToFile = FilePathGenerator.AppendTimeStamp(filename);
             this.pathToFile = FilePathGenerator.AppendDataLogPath(this.pathToFile);
 
-            // Make sure directory is created
-            Directory.CreateDirectory(FilePathGenerator.GetDataLogPath());
-
             // Create the file
-            using FileStream fs = File.Create(this.pathToFile);
+            using FileStream fs = FileGenerator.CreateFileWithPermissions(this.pathToFile);
         }
 
         private (ILogEntity, ClassMap) GetClassAndMap(LogEntity entity)
