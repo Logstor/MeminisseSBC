@@ -17,12 +17,12 @@ namespace Meminisse
 
         void IState.OnEnterState(IStateController control)
         {
-            this.logger.D("Entering Pause State");
+            Logger.instance.D("Entering Pause State");
         }
 
         void IState.OnExitState(IStateController control)
         {
-            this.logger.D("Exiting Pause State");
+            Logger.instance.D("Exiting Pause State");
         }
 
         void IState.HandleUpdate(IStateController control, long totalMilliseconds, EntityWrap entity)

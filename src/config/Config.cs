@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace Meminisse
@@ -8,6 +9,7 @@ namespace Meminisse
         public static string GeneralPath { get; set; } = "../../../sd/sys/COBOD/Meminisse/";
         public static string ConfigurationPath { get; set; } = Path.Combine(GeneralPath, "");
         public static string ConfigurationFilename { get; set; } = "MeminisseConfig.json";
+        public static string ConfigurationFullPath { get; set; } = Path.Combine(ConfigurationPath, ConfigurationFilename);
         public static string DataPath { get; set; } = Path.Combine(GeneralPath, "data");
 
         /// <summary>
@@ -52,18 +54,47 @@ namespace Meminisse
         /// <value></value>
         public bool LogBaby { get; set; } = true;
 
+        private static DateTime configLastModification;
+
         private static Config _instance;
         public static Config instance { 
             get 
             {
                 if (_instance == null)
                 {
-                    _instance = Configuration.Loader.Load(Path.Combine(ConfigurationPath, ConfigurationFilename));
+                    (_instance, configLastModification) = Configuration.Loader.Load(ConfigurationFullPath);
                 }
                 return _instance;
             } 
             private set { _instance = value; } }
 
         internal Config() {}
+
+        public bool Refresh()
+        {
+            int comparison = File.GetLastWriteTimeUtc(ConfigurationFullPath).CompareTo(configLastModification);
+            if (comparison > 0)
+            {
+                Logger.instance.I("Refreshing Configuration");
+                this._Refresh();
+                return true;
+            }
+            return false;
+        }
+
+        public void ForceRefresh()
+        {
+            Logger.instance.I("Forcing refresh of Configuration");
+            this._Refresh();
+        }
+
+        private void _Refresh()
+        {
+            // Refresh the configuration
+            (_instance, configLastModification) = Configuration.Loader.Load(ConfigurationFullPath);
+
+            // Update logger
+            Logger.instance.ChangeLogLevel(_instance.ConsoleLogLevel);
+        }
     }
 }

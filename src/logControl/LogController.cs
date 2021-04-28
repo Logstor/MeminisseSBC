@@ -19,8 +19,6 @@ namespace Meminisse
     {
         private IDataAccess dataAccess;
 
-        private Logger logger;
-
         private long logDelayMs = 60000L / Config.instance.LogsPrMin;
 
         private IState currentState = new StateIdle();
@@ -30,8 +28,7 @@ namespace Meminisse
         /// </summary>
         public LogController(Logger logger)
         {
-            this.logger = logger;
-            this.dataAccess = CodeDataAccess.getInstance(this.logger);
+            this.dataAccess = CodeDataAccess.getInstance(Logger.instance);
         }
 
         /// <summary>
@@ -39,7 +36,7 @@ namespace Meminisse
         /// </summary>
         public async Task start()
         {
-            this.logger.D(string.Format("Starting logging with {0} milliseconds delay", this.logDelayMs));
+            Logger.instance.D(string.Format("Starting logging with {0} milliseconds delay", this.logDelayMs));
 
             // Enter the state
             this.currentState.OnEnterState(this);
@@ -85,7 +82,7 @@ namespace Meminisse
             {
                 // Restart log timer and get full update
                 logTimer.Restart();
-                this.logger.T("Requesting full Data model");
+                Logger.instance.T("Requesting full Data model");
                 entities = await this.dataAccess.requestFull();
 
                 // State handle
@@ -93,7 +90,7 @@ namespace Meminisse
 
                 // Check log time
                 logTimer.Stop();
-                this.logger.T(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
+                Logger.instance.T(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
 
                 // Wait if we're before time
                 if (! (logTimer.ElapsedMilliseconds >= this.logDelayMs) )
@@ -101,7 +98,7 @@ namespace Meminisse
 
                 // Otherwise warn the we can't reach the desired frequency
                 else
-                    this.logger.W(
+                    Logger.instance.W(
                         string.Format("We can't log this fast! Current log time: {0} ms - Max log time: {1} ms",
                             logTimer.ElapsedMilliseconds, this.logDelayMs));
             }

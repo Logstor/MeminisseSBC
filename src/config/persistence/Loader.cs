@@ -7,7 +7,12 @@ namespace Meminisse.Configuration
 {
     internal static class Loader
     {
-        internal static Config Load(string fullPath)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        internal static (Config, DateTime) Load(string fullPath)
         {
             try 
             {
@@ -15,11 +20,11 @@ namespace Meminisse.Configuration
                 if ( File.Exists(fullPath) )
                 {
                     string json = File.ReadAllText(fullPath);
-                    return JsonConvert.DeserializeObject<Config>(json);
+                    return ( JsonConvert.DeserializeObject<Config>(json), File.GetLastWriteTimeUtc(fullPath) );
                 }
                 else
                 {
-                   return CreateEverything(fullPath);
+                   return ( CreateEverything(fullPath), File.GetLastWriteTimeUtc(fullPath) );
                 }
             }
             catch (Exception e)    
@@ -27,7 +32,7 @@ namespace Meminisse.Configuration
                 Console.WriteLine("ERROR Loading or Creating configuration file!");
                 Console.WriteLine(e.ToString());
                 Console.WriteLine("Continuous with default configuration");
-                return new Config();
+                return (new Config(), DateTime.UnixEpoch);
             }
         }
 

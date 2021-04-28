@@ -10,12 +10,12 @@ namespace Meminisse
 
         void IState.OnEnterState(IStateController control) 
         {
-            this.logger.D("Entering Idle State");
+            Logger.instance.D("Entering Idle State");
         }
 
         void IState.OnExitState(IStateController control)
         {
-            this.logger.D("Exiting Idle State");
+            Logger.instance.D("Exiting Idle State");
         }
 
         void IState.HandleUpdate(IStateController control, long totalMilliseconds, EntityWrap entity)

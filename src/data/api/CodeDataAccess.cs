@@ -30,12 +30,9 @@ namespace Meminisse
 
         private int maxRetry = 3;
 
-        private Logger logger;
-
         private CodeDataAccess(Logger logger) 
         {
             commandConnection = new CommandConnection();
-            this.logger = logger;
 
             this.codeM408S4 = new Code("M408 S4");
             this.codeM408S4.Channel = CodeChannel.SBC;
@@ -66,11 +63,11 @@ namespace Meminisse
                 try
                 {
                     // Get data
-                    this.logger.T("Requesting serialized object model");
+                    Logger.instance.T("Requesting serialized object model");
                     string json = await this.commandConnection.GetSerializedObjectModel();
 
                     // Parse data
-                    this.logger.T("Parsing to JObject");
+                    Logger.instance.T("Parsing to JObject");
                     JObject obj = JObject.Parse(json);
 
                     (Position position, Babystep babystep) = this.ParsePositionAndBabystep(obj);
@@ -116,7 +113,7 @@ namespace Meminisse
                 catch (Exception e)
                 {
                     ex = e;
-                    this.logger.D("Failed retrieving position ... Retrying");
+                    Logger.instance.D("Failed retrieving position ... Retrying");
                 }
             }
             
@@ -141,12 +138,12 @@ namespace Meminisse
                 }
                 catch (Exception)
                 {
-                    this.logger.D("Failed retrieving status, Retrying ...");
+                    Logger.instance.D("Failed retrieving status, Retrying ...");
                 }
             }
 
             // This indicates error
-            this.logger.E("Couldn't retrieve MachineStatus");
+            Logger.instance.E("Couldn't retrieve MachineStatus");
             return MachineStatus.Off;
         }
 
@@ -167,12 +164,12 @@ namespace Meminisse
                 }
                 catch (Exception)
                 {
-                    this.logger.D("Failed retrieving filename, Retrying ...");
+                    Logger.instance.D("Failed retrieving filename, Retrying ...");
                 }
             }
 
             // This is reached on error
-            this.logger.E("Couldn't retrieve filename!");
+            Logger.instance.E("Couldn't retrieve filename!");
             return "Error";
         }
 
@@ -214,7 +211,7 @@ namespace Meminisse
 
         private MachineStatus ParseMachineStatus(JObject obj)
         {
-            this.logger.T("Parsing Machine Status");
+            Logger.instance.T("Parsing Machine Status");
             switch(obj["state"]["status"].ToObject<string>())
             {
                 case "idle":
@@ -240,7 +237,7 @@ namespace Meminisse
 
         private (Position, Babystep) ParsePositionAndBabystep(JObject obj)
         {
-            this.logger.T("Parsing Position and Babystep");
+            Logger.instance.T("Parsing Position and Babystep");
 
             // Initial Position
             Position pos = new Position(new List<float>{.0f, .0f, .0f, .0f});
@@ -301,7 +298,7 @@ namespace Meminisse
 
         private Speed ParseSpeed(JObject obj)
         {
-            this.logger.T("Parsing Speed");
+            Logger.instance.T("Parsing Speed");
             Speed speed = new Speed(0, 0, 0);
 
             // Parse
@@ -318,7 +315,7 @@ namespace Meminisse
 
         private Time ParseTime(JObject obj)
         {
-            this.logger.T("Parsing Time");
+            Logger.instance.T("Parsing Time");
             Time time = new Time(0, 0);
 
             // Parse
@@ -337,7 +334,7 @@ namespace Meminisse
 
         private Extrusion ParseExtrusion(JObject obj)
         {
-            this.logger.T("Parsing Extrusion");
+            Logger.instance.T("Parsing Extrusion");
             Extrusion extrusion = new Extrusion();
 
             // Parse

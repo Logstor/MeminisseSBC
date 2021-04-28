@@ -35,12 +35,12 @@ namespace Meminisse
 
         void IState.OnEnterState(IStateController control)
         {
-            this.logger.D("Entering Processing State");
+            Logger.instance.D("Entering Processing State");
         }
 
         void IState.OnExitState(IStateController control)
         {
-            this.logger.D("Exiting Processing State");
+            Logger.instance.D("Exiting Processing State");
         }
 
         void IState.HandleUpdate(IStateController control, long totalMilliseconds, EntityWrap entity)
@@ -64,8 +64,8 @@ namespace Meminisse
                     try { this.WriteLog(totalMilliseconds, entity); }
                     catch (Exception e)
                     {
-                        this.logger.D(e.ToString());
-                        this.logger.E("Failed writing to log file, trying to recover with new log file");
+                        Logger.instance.D(e.ToString());
+                        Logger.instance.E("Failed writing to log file, trying to recover with new log file");
                         control.ChangeState(new StateIdle());
                     }
                     break;

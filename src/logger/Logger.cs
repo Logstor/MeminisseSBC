@@ -34,6 +34,15 @@ public class Logger
     }
 
     /// <summary>
+    /// Changing the loglevel on the fly.
+    /// </summary>
+    /// <param name="logLevel"></param>
+    public void ChangeLogLevel(LogLevel logLevel)
+    {
+        this.logLevel = logLevel;
+    }
+
+    /// <summary>
     /// Write Trace log
     /// </summary>
     /// <param name="message"></param>
