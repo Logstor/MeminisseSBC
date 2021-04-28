@@ -4,7 +4,7 @@ namespace Meminisse
 {
     public class StateIdle : IState
     {
-        long IState.logDelay { get; } = 60000L / Config.instance.LogsPrMin;
+        long IState.logDelay { get { return 60000L / Config.instance.LogsPrMin; } }
 
         private Logger logger = Logger.instance;
 
@@ -30,6 +30,8 @@ namespace Meminisse
                 case MachineStatus.Halted:
                 case MachineStatus.ChangingTool:
                 default:
+                    // Update configuration if necessary
+                    Config.instance.Refresh();
                     break;
             }
         }

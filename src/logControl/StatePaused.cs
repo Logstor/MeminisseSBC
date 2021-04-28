@@ -4,7 +4,7 @@ namespace Meminisse
 {
     public class StatePaused : IState
     {
-        long IState.logDelay { get; } = 60000L / Config.instance.LogsPrMin;
+        long IState.logDelay { get { return 60000L / Config.instance.LogsPrMin; } }
 
         private ILogController logController;
 

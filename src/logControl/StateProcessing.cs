@@ -7,7 +7,7 @@ namespace Meminisse
 {
     public class StateProcessing : IState
     {
-        long IState.logDelay { get; } = 60000L / Config.instance.LogsPrMin;
+        long IState.logDelay { get { return 60000L / Config.instance.LogsPrMin; } }
 
         private ILogController logController;
 
