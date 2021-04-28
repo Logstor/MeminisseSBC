@@ -41,7 +41,8 @@ namespace Meminisse
         {
             this.logger.D(string.Format("Starting logging with {0} milliseconds delay", this.logDelayMs));
 
-            // Call ChangeState() here to make sure OnEnterState() is called in the starting state
+            // Enter the state
+            this.currentState.OnEnterState(this);
             
             await MainLoop();
         }

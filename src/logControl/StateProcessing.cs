@@ -81,7 +81,7 @@ namespace Meminisse
         private void ChangeStateAndFlush(IStateController control, IState newState)
         {
             this.logController.FlushToFile();
-            control.ChangeState(new StateIdle());
+            control.ChangeState(newState);
         }
 
         private List<LogEntity> CreateInitLogList()
