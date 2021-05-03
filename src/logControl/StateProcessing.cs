@@ -91,7 +91,7 @@ namespace Meminisse
             if (Config.instance.LogPosition)
                 list.Add(LogEntity.Position);
 
-            if (Config.instance.LogSpeed)
+            if (Config.instance.LogPrintSpeed)
                 list.Add(LogEntity.Speed);
             
             if (Config.instance.LogTime)
@@ -116,7 +116,7 @@ namespace Meminisse
             if (Config.instance.LogPosition)
                 list.Add(entities.position);
 
-            if (Config.instance.LogSpeed)
+            if (Config.instance.LogPrintSpeed)
                 list.Add(entities.speed);
 
             if (Config.instance.LogTime)

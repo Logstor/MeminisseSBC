@@ -25,6 +25,12 @@ namespace Meminisse
         public int LogsPrMin { get; set; } = 60;
 
         /// <summary>
+        /// How many times should we check if a print is started, when we're in idle state?
+        /// </summary>
+        /// <value></value>
+        public int IdleCheckPrMin { get; set; } = 30;
+
+        /// <summary>
         /// Should position be logged?
         /// </summary>
         /// <value></value>
@@ -34,7 +40,7 @@ namespace Meminisse
         /// Should Speed be logged?
         /// </summary>
         /// <value></value>
-        public bool LogSpeed { get; set; } = true;
+        public bool LogPrintSpeed { get; set; } = true;
 
         /// <summary>
         /// Should Duration and Time be logged?

@@ -4,7 +4,7 @@ namespace Meminisse
 {
     public class StateIdle : IState
     {
-        long IState.logDelay { get { return 60000L / Config.instance.LogsPrMin; } }
+        long IState.logDelay { get { return 60000L / Config.instance.IdleCheckPrMin; } }
 
         private Logger logger = Logger.instance;
 
