@@ -9,6 +9,10 @@ namespace Meminisse
         public PositionMap()
         {
             AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.x).TypeConverter<DecConvert>();
+            Map(m => m.y).TypeConverter<DecConvert>();
+            Map(m => m.z).TypeConverter<DecConvert>();
+            Map(m => m.u).TypeConverter<DecConvert>();
         }
     }
 
@@ -33,6 +37,7 @@ namespace Meminisse
         public ExtrusionMap()
         {
             AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.ExtrusionFactor).TypeConverter<DecConvert>();
         }
     }
 
@@ -41,6 +46,7 @@ namespace Meminisse
         public BabystepMap()
         {
             AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.zBaby).TypeConverter<DecConvert>();
             Map(m => m.xBaby).Ignore();
             Map(m => m.yBaby).Ignore();
             Map(m => m.uBaby).Ignore();
