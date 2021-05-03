@@ -54,6 +54,12 @@ namespace Meminisse
         /// <value></value>
         public bool LogBaby { get; set; } = true;
 
+        /// <summary>
+        /// Should Main board voltages be logged?
+        /// </summary>
+        /// <value></value>
+        public bool LogVoltages { get; set; } = true;
+
         private static DateTime configLastModification;
 
         private static Config _instance;

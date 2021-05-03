@@ -102,6 +102,9 @@ namespace Meminisse
             
             if (Config.instance.LogBaby)
                 list.Add(LogEntity.Babystep);
+
+            if (Config.instance.LogVoltages)
+                list.Add(LogEntity.Voltage);
             
             return list;
         }
@@ -124,6 +127,9 @@ namespace Meminisse
 
             if (Config.instance.LogBaby)
                 list.Add(entities.babystep);
+
+            if (Config.instance.LogVoltages)
+                list.Add(entities.voltage);
 
             return list;
         }

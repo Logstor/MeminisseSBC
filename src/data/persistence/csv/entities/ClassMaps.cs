@@ -52,4 +52,18 @@ namespace Meminisse
             Map(m => m.uBaby).Ignore();
         }
     }
+
+    public sealed class VoltageMap : ClassMap<Voltage>
+    {
+        public VoltageMap()
+        {
+            AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.v12Curr).TypeConverter<DecConvert>();
+            Map(m => m.v12Min).TypeConverter<DecConvert>();
+            Map(m => m.v12Max).TypeConverter<DecConvert>();
+            Map(m => m.vInCurr).TypeConverter<DecConvert>();
+            Map(m => m.vInMin).TypeConverter<DecConvert>();
+            Map(m => m.vInMax).TypeConverter<DecConvert>();
+        }
+    }
 }

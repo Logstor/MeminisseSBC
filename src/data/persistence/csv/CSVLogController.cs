@@ -112,6 +112,9 @@ namespace Meminisse
                     case LogEntity.Babystep:
                         this.csv.WriteRecord<Babystep>((Babystep) entity);
                         break;
+                    case LogEntity.Voltage:
+                        this.csv.WriteRecord<Voltage>((Voltage) entity);
+                        break;
                     default:
                         throw new Exception(string.Format("LogEntity not recognized: {0}", entity.ToString()));
                 }
@@ -208,6 +211,8 @@ namespace Meminisse
                     return (new Extrusion(), new ExtrusionMap());
                 case LogEntity.Babystep:
                     return (new Babystep(), new BabystepMap());
+                case LogEntity.Voltage:
+                    return (new Voltage(), new VoltageMap());
                 default:
                     throw new Exception(string.Format("LogEntity not recognized: {0}", entity.ToString()));
             }

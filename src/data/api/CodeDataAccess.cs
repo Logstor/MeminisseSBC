@@ -77,6 +77,7 @@ namespace Meminisse
                                 .Time(this.ParseTime(obj))
                                 .Extrusion(this.ParseExtrusion(obj))
                                 .Babystep(babystep)
+                                .Voltage(this.ParseVoltage(obj))
                                 .Build(this.ParseMachineStatus(obj));
                 }
                 catch (Exception)
@@ -341,6 +342,25 @@ namespace Meminisse
             extrusion.ExtrusionFactor = obj["move"]["extruders"][0]["factor"].ToObject<float>();
 
             return extrusion;
+        }
+
+        private Voltage ParseVoltage(JObject obj)
+        {
+            Logger.instance.T("Parsing Voltage");
+            Voltage voltage = new Voltage();
+
+            // Parse and Set everything
+            JToken v12 = obj["boards"][0]["v12"];
+            JToken vIn = obj["boards"][0]["vIn"];
+
+            voltage.v12Curr = v12.SelectToken("current").ToObject<float>();
+            voltage.v12Min = v12.SelectToken("min").ToObject<float>();
+            voltage.v12Max = v12.SelectToken("max").ToObject<float>();
+            voltage.vInCurr = vIn.SelectToken("current").ToObject<float>();
+            voltage.vInMin = vIn.SelectToken("min").ToObject<float>();
+            voltage.vInMax = vIn.SelectToken("max").ToObject<float>();
+
+            return voltage;
         }
 
         private async Task CheckConnection()

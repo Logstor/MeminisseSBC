@@ -18,8 +18,8 @@ namespace Meminisse
         Time,
         Speed,
         Extrusion,
-        Babystep
-
+        Babystep,
+        Voltage
     }
 
     public class EntityWrap
@@ -30,8 +30,9 @@ namespace Meminisse
         public Time time { get; private set; }
         public Extrusion extrusion { get; private set; }
         public Babystep babystep { get; private set; }
+        public Voltage voltage { get; private set; }
 
-        private EntityWrap(MachineStatus status, Position position, Speed speed, Time time, Extrusion extrusion, Babystep babystep)
+        private EntityWrap(MachineStatus status, Position position, Speed speed, Time time, Extrusion extrusion, Babystep babystep, Voltage voltage)
         {
             this.machineStatus = status;
             this.position = position;
@@ -39,6 +40,7 @@ namespace Meminisse
             this.time = time;
             this.extrusion = extrusion;
             this.babystep = babystep;
+            this.voltage = voltage;
         }
 
         public class Builder
@@ -48,13 +50,14 @@ namespace Meminisse
             private Time time;
             private Extrusion extrusion;
             private Babystep babystep;
+            private Voltage voltage;
 
             public EntityWrap Build(MachineStatus machineStatus)
             {
-                if (position == null || speed == null || time == null || extrusion == null || babystep == null)
+                if (position == null || speed == null || time == null || extrusion == null || babystep == null || voltage == null)
                     throw new ArgumentException("Atleast one parameter needs to be not null!");
 
-                return new EntityWrap(machineStatus, this.position, this.speed, this.time, extrusion, this.babystep);
+                return new EntityWrap(machineStatus, this.position, this.speed, this.time, extrusion, this.babystep, this.voltage);
             }
             
             public Builder Position(Position position) { this.position = position; return this; }
@@ -62,6 +65,7 @@ namespace Meminisse
             public Builder Time(Time time) { this.time = time; return this; }
             public Builder Extrusion(Extrusion extrusion) { this.extrusion = extrusion; return this; }
             public Builder Babystep(Babystep babystep) { this.babystep = babystep; return this; }
+            public Builder Voltage(Voltage voltage) { this.voltage = voltage; return this; }
         }
     }
 
@@ -182,5 +186,29 @@ namespace Meminisse
         }
 
         LogEntity ILogEntity.GetEntityType() { return LogEntity.Babystep; }
+    }
+
+    public class Voltage : ILogEntity
+    {
+        public float v12Curr { get; set; }
+        public float v12Min { get; set; }
+        public float v12Max { get; set; }
+        public float vInCurr { get; set; }
+        public float vInMin { get; set; }
+        public float vInMax { get; set; }
+
+        public Voltage() {}
+
+        public Voltage(float v12Curr, float v12Min, float v12Max, float vInCurr, float vInMin, float vInMax)
+        {
+            this.v12Curr = v12Curr;
+            this.v12Min = v12Min;
+            this.v12Max = v12Max;
+            this.vInCurr = vInCurr;
+            this.vInMin = vInMin;
+            this.vInMax = vInMax;
+        }
+
+        LogEntity ILogEntity.GetEntityType() { return LogEntity.Voltage; }
     }
 }
