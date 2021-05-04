@@ -17,6 +17,8 @@ namespace Meminisse
     /// </summary>
     public class LogController : IStateController
     {
+        private const string FileExtension = ".csv";
+
         private IDataAccess dataAccess;
 
         private long logDelayMs = 60000L / Config.instance.LogsPrMin;
@@ -66,7 +68,7 @@ namespace Meminisse
             filename = filename.Trim();
 
             // Add extension
-            return filename + ".log";
+            return filename + FileExtension;
         }
 
         private async Task MainLoop()
