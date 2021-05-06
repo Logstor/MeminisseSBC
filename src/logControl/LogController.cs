@@ -92,7 +92,7 @@ namespace Meminisse
 
                 // Check log time
                 logTimer.Stop();
-                Logger.instance.D(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
+                Logger.instance.D(string.Format("Loop took {0} milliseconds", logTimer.ElapsedMilliseconds));
 
                 // Wait if we're before time
                 if (! (logTimer.ElapsedMilliseconds >= this.logDelayMs) )
