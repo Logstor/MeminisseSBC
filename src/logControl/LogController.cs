@@ -38,7 +38,7 @@ namespace Meminisse
         /// </summary>
         public async Task start()
         {
-            Logger.instance.D(string.Format("Starting logging with {0} milliseconds delay", this.logDelayMs));
+            Logger.instance.D(string.Format("Starting logging with {0} milliseconds intervals", this.logDelayMs));
 
             // Enter the state
             this.currentState.OnEnterState(this);
@@ -92,7 +92,7 @@ namespace Meminisse
 
                 // Check log time
                 logTimer.Stop();
-                Logger.instance.T(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
+                Logger.instance.D(string.Format("Log took {0} milliseconds", logTimer.ElapsedMilliseconds));
 
                 // Wait if we're before time
                 if (! (logTimer.ElapsedMilliseconds >= this.logDelayMs) )

@@ -11,13 +11,13 @@ namespace Meminisse
 
         private ILogController logController;
 
-        private Logger logger = Logger.instance;
-
         /// <summary>
         /// Create a new StateProcessing instance, which creates and initializes a new log file.
         /// </summary>
         public StateProcessing(string filename)
         {
+            Logger.instance.I("Starting new log");
+
             // Initialize persistent logging
             this.logController = new CSVLogController();
             this.logController.Init(filename, this.CreateInitLogList());
