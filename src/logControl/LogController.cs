@@ -95,14 +95,14 @@ namespace Meminisse
                 Logger.instance.D(string.Format("Loop took {0} milliseconds", logTimer.ElapsedMilliseconds));
 
                 // Wait if we're before time
-                if (! (logTimer.ElapsedMilliseconds >= this.logDelayMs) )
+                if (! (logTimer.ElapsedMilliseconds >= this.currentState.logDelay) )
                     Thread.Sleep((int)(this.currentState.logDelay - logTimer.ElapsedMilliseconds));
 
                 // Otherwise warn the we can't reach the desired frequency
                 else
                     Logger.instance.W(
                         string.Format("We can't log this fast! Current log time: {0} ms - Max log time: {1} ms",
-                            logTimer.ElapsedMilliseconds, this.logDelayMs));
+                            logTimer.ElapsedMilliseconds, this.currentState.logDelay));
             }
             while (true);
         }
