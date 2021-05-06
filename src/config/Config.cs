@@ -6,7 +6,8 @@ namespace Meminisse
     public class Config
     {
         // Fields
-        public static string GeneralPath { get; set; } = "../../../sd/sys/COBOD/Meminisse/";
+        public static string COBODPath { get; set; } = "../../../sd/sys/COBOD/";
+        public static string GeneralPath { get; set; } = Path.Combine(COBODPath,"Meminisse/");
         public static string ConfigurationPath { get; set; } = Path.Combine(GeneralPath, "");
         public static string ConfigurationFilename { get; set; } = "MeminisseConfig.json";
         public static string ConfigurationFullPath { get; set; } = Path.Combine(ConfigurationPath, ConfigurationFilename);

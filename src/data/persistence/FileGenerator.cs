@@ -55,13 +55,18 @@ namespace Meminisse
             }
         }
 
+
+        /// <summary>
+        /// Setting the permissions of the whole path to dsf.
+        /// </summary>
+        /// <param name="fullPath">redundant atm.</param>
         private static void SetPermissionsUnix(string fullPath)
         {
             // Create process
             using Process p = new Process();
 
             // Setup start info
-            p.StartInfo = new ProcessStartInfo("chown", string.Format("dsf {0}", fullPath));
+            p.StartInfo = new ProcessStartInfo("chown", string.Format("-R dsf {0}", Config.COBODPath));
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.RedirectStandardOutput = false;
             p.StartInfo.RedirectStandardError = true;
