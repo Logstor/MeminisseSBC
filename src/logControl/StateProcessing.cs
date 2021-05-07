@@ -60,7 +60,11 @@ namespace Meminisse
 
                 case MachineStatus.Paused:
                 case MachineStatus.ChangingTool:
-                    this.ChangeStateAndFlush(control, new StatePaused(this.logController));
+                    // Continue logging?
+                    if (Config.instance.LogWhilePaused)
+                        goto case MachineStatus.Processing;
+                    else
+                        this.ChangeStateAndFlush(control, new StatePaused(this.logController));
                     break;
 
                 case MachineStatus.Processing:

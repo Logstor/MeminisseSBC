@@ -29,7 +29,13 @@ namespace Meminisse
         /// How many times should we check if a print is started, when we're in idle state?
         /// </summary>
         /// <value></value>
-        public int IdleCheckPrMin { get; set; } = 30;
+        public int IdleCheckPrMin { get; set; } = 15;
+
+        /// <summary>
+        /// Should we log while the printer state is paused?
+        /// </summary>
+        /// <value></value>
+        public bool LogWhilePaused { get; set; } = false;
 
         /// <summary>
         /// Should position be logged?
