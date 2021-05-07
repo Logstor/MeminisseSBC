@@ -7,7 +7,11 @@ namespace Meminisse
 {
     public class StateProcessing : IState
     {
-        long IState.logDelay { get { return 60000L / Config.instance.LogsPrMin; } }
+        public long logDelay 
+        { 
+            get { return 60000L / Config.instance.LogsPrMin; } 
+            private set { logDelay = value; } 
+        }
 
         private ILogController logController;
 
@@ -16,7 +20,7 @@ namespace Meminisse
         /// </summary>
         public StateProcessing(string filename)
         {
-            Logger.instance.I("Starting new log");
+            Logger.instance.I(string.Format("Starting new log - Log interval: {0} milliseconds", this.logDelay));
 
             // Initialize persistent logging
             this.logController = new CSVLogController();
