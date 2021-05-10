@@ -18,13 +18,13 @@ namespace Meminisse
         /// <summary>
         /// Create a new StateProcessing instance, which creates and initializes a new log file.
         /// </summary>
-        public StateProcessing(string filename)
+        public StateProcessing(IStateController control, string filename)
         {
             Logger.instance.I(string.Format("Starting new log - Log interval: {0} milliseconds", this.logDelay));
 
             // Initialize persistent logging
             this.logController = new CSVLogController();
-            this.logController.Init(filename, this.CreateInitLogList());
+            this.logController.InitWithHeader(filename, this.CreateInitLogList(), this.CreateHeader(control));
             this.logController.FlushToFile();
         }
 
@@ -78,6 +78,17 @@ namespace Meminisse
                     }
                     break;
             }
+        }
+
+        /// <summary>
+        /// Creates the correct Log header for the logfile.
+        /// </summary>
+        /// <param name="control"></param>
+        /// <returns></returns>
+        private LogHeader CreateHeader(IStateController control)
+        {
+            // Make path relative
+            return new(control.GetCurrentFilePath());
         }
 
         private void WriteLog(long totalMilliseconds, EntityWrap entities)

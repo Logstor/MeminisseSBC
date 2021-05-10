@@ -57,18 +57,30 @@ namespace Meminisse
             this.currentState.OnEnterState(this);
         }
 
+        /// <summary>
+        /// Get the name of the GCode file, which is being printed.
+        /// </summary>
+        /// <returns>a string like this: {GCode Name}.csv</returns>
         string IStateController.GetCurrentFilename()
         {
-            // Retrieve
+            // Retrieve full path to GCode file
             Task<string> task = this.dataAccess.requestCurrentFilePath();
             task.Wait();
 
-            // Parse
+            // Parse so we only have the name of the file
             string filename = Path.GetFileNameWithoutExtension(task.Result);
             filename = filename.Trim();
 
             // Add extension
             return filename + FileExtension;
+        }
+
+        string IStateController.GetCurrentFilePath()
+        {
+            // Retrieve full path to GCode file
+            Task<string> task = this.dataAccess.requestCurrentFilePath();
+            task.Wait();
+            return task.Result;
         }
 
         private async Task MainLoop()

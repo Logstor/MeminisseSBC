@@ -6,6 +6,17 @@ namespace Meminisse
     public static class FilePathGenerator
     {
         /// <summary>
+        /// Takes the GCode path, gotten from the DataAccess, and converts it to the relative path from this programs 
+        /// working directory.
+        /// </summary>
+        /// <param name="gCodePath">Path to GCode gotten from DataAccess</param>
+        /// <returns>string - Relative path to GCode from this program working directory</returns>
+        public static string ConvertGCodePathToRelative(string gCodePath)
+        {
+            return gCodePath.Replace("0:/", Config.SDPath);
+        }
+
+        /// <summary>
         /// Appending data log path and the current Month and Day to the back of the given filename.
         /// 
         /// Path + Year-Month-Day-Time--filename

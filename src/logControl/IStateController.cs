@@ -5,5 +5,7 @@ namespace Meminisse
         void ChangeState(IState newState);
 
         string GetCurrentFilename();
+
+        string GetCurrentFilePath();
     }
 }

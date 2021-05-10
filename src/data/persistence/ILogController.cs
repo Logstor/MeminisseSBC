@@ -8,6 +8,8 @@ namespace Meminisse
     {
         void Init(string filename, List<LogEntity> entitiesToLog);
 
+        void InitWithHeader(string filename, List<LogEntity> entitiesToLog, LogHeader logHeader);
+
         void Reset();
 
         void Add(long totalElapsedTimeMs, List<ILogEntity> entities);

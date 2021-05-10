@@ -6,8 +6,9 @@ namespace Meminisse
     public class Config
     {
         // Fields
-        public static string COBODPath { get; set; } = "../../../sd/sys/COBOD/";
-        public static string GeneralPath { get; set; } = Path.Combine(COBODPath,"Meminisse/");
+        public static string SDPath { get; set; } = "../../../sd/";
+        public static string COBODSysPath { get; set; } = Path.Combine(SDPath, "sys/COBOD/");
+        public static string GeneralPath { get; set; } = Path.Combine(COBODSysPath,"Meminisse/");
         public static string ConfigurationPath { get; set; } = Path.Combine(GeneralPath, "");
         public static string ConfigurationFilename { get; set; } = "MeminisseConfig.json";
         public static string ConfigurationFullPath { get; set; } = Path.Combine(ConfigurationPath, ConfigurationFilename);
@@ -18,6 +19,12 @@ namespace Meminisse
         /// </summary>
         /// <value></value>
         public LogLevel ConsoleLogLevel { get; set; } = LogLevel.INFO;
+
+        /// <summary>
+        /// What character should be used to delimiter entities in the logfile?
+        /// </summary>
+        /// <value></value>
+        public string CSVDelimiter { get; set; } = ";";
 
         /// <summary>
         /// How many times should we log per minute?

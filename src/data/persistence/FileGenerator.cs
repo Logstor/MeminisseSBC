@@ -65,7 +65,7 @@ namespace Meminisse
             using Process p = new Process();
 
             // Setup start info
-            p.StartInfo = new ProcessStartInfo("chown", string.Format("-R dsf {0}", Config.COBODPath));
+            p.StartInfo = new ProcessStartInfo("chown", string.Format("-R dsf {0}", Config.COBODSysPath));
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.RedirectStandardOutput = false;
             p.StartInfo.RedirectStandardError = true;

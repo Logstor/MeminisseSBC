@@ -1,10 +1,10 @@
-using System.Threading.Tasks;
-using System.Threading;
-using System.IO;
 using System;
+using System.IO;
 using System.Globalization;
 using System.Text;
 using System.Collections.Generic;
+
+using Newtonsoft.Json;
 
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -29,7 +29,7 @@ namespace Meminisse
         {
             this.config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                Delimiter = ";"
+                Delimiter = Config.instance.CSVDelimiter
             };
             this.CreateStreams();
         }
@@ -42,28 +42,30 @@ namespace Meminisse
         /// <summary>
         /// Initialize the log with File Creation and Writing the initial header.
         /// 
-        /// OBS: ATM you need to preserve the order of the list, so it can be added correctly later.
+        /// OBS: ATM you need to preserve the order of the list, so log entries can be added correctly later.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">The name of the logfile with extension. The function will take care of the path.</param>
         /// <param name="entityTypes"></param>
         void ILogController.Init(string filename, List<LogEntity> entityTypes)
         {
-            this.csv.WriteField("totTime"); // Manuel header element
-            
-            // Set Context and WriteHeaders
-            foreach (LogEntity entity in entityTypes)
-            {
-                (ILogEntity logEntity, ClassMap map) = this.GetClassAndMap(entity);
-                this.csv.Context.RegisterClassMap(map);
-                this.csv.WriteHeader(logEntity.GetType());
-            }
-            this.csv.NextRecord();
+            this.Initialize(filename, entityTypes);
+        }
 
-            // Create file
-            this.CreatePathAndFile(filename);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename">The name of the logfile with extension. The function will take care of the path.</param>
+        /// <param name="entitiesToLog"></param>
+        /// <param name="logHeader"></param>
+        void ILogController.InitWithHeader(string filename, List<LogEntity> entityTypes, LogHeader logHeader)
+        {
+            // Write LogHeader to file
+            string jsonHeader = JsonConvert.SerializeObject(logHeader, Formatting.Indented);
+            writer.Write(jsonHeader);
+            writer.Write("\n\n");
 
-            // Set initialized
-            this.initialized = true;
+            // Then run normal init sequence
+            this.Initialize(filename, entityTypes);
         }
 
         void ILogController.Reset()
@@ -148,6 +150,35 @@ namespace Meminisse
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        /// <summary>
+        /// Initializing the csv format to a file by putting in all the headers. 
+        /// 
+        /// This is appending to the file, so it won't delete or overwrite the given file.
+        /// 
+        /// OBS: The list of entities to log has to be in the same order later, when log entries is being written.
+        /// </summary>
+        /// <param name="filename">The name of the logfile with extension. The function will take care of the path.</param>
+        /// <param name="entityTypes">List of types to log.</param>
+        private void Initialize(string filename, List<LogEntity> entityTypes)
+        {
+            this.csv.WriteField("totTime"); // Manuel header element
+            
+            // Set Context and WriteHeaders
+            foreach (LogEntity entity in entityTypes)
+            {
+                (ILogEntity logEntity, ClassMap map) = this.GetClassAndMap(entity);
+                this.csv.Context.RegisterClassMap(map);
+                this.csv.WriteHeader(logEntity.GetType());
+            }
+            this.csv.NextRecord();
+
+            // Create file
+            this.CreatePathAndFile(filename);
+
+            // Set initialized
+            this.initialized = true;
         }
 
         /// <summary>

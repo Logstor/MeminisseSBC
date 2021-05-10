@@ -23,7 +23,7 @@ namespace Meminisse
             switch(entity.machineStatus)
             {
                 case MachineStatus.Processing:
-                    control.ChangeState(new StateProcessing(control.GetCurrentFilename()));
+                    control.ChangeState(new StateProcessing(control, control.GetCurrentFilename()));
                     break;
                 case MachineStatus.Idle:
                 case MachineStatus.Off:
