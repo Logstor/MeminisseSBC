@@ -22,11 +22,6 @@ namespace Meminisse
 
         static Config config;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        static bool running = true;
-
         static IDataAccess dataAccess;
 
         /// <summary>
@@ -42,24 +37,8 @@ namespace Meminisse
 
         public static int Main(string[] args)
         {
-            // Deal with program termination requests (SIGTERM and Ctrl+C)
-            AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
-            {
-                if (!CancelSource.IsCancellationRequested)
-                {
-                    CancelSource.Cancel();
-                    running = false;
-                }
-            };
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                if (!CancelSource.IsCancellationRequested)
-                {
-                    e.Cancel = true;
-                    CancelSource.Cancel();
-                    running = false;
-                }
-            };
+            // Deal with program termination expected and unexpected
+            CrashHandler crashHandler = new CrashHandler(CancelSource);
 
             // Initialize configuration
             config = Config.instance;
@@ -80,11 +59,11 @@ namespace Meminisse
             dataAccess = CodeDataAccess.getInstance(logger);
 
             // Start Log Controller
-            while(running)
+            while(!cancellationToken.IsCancellationRequested)
             {
                 try 
                 {
-                    LogController logController = new LogController(logger);
+                    LogController logController = new LogController(cancellationToken);
                     await logController.start();
                 }
                 catch(JsonException e)

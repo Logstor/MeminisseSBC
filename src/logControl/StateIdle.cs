@@ -35,5 +35,10 @@ namespace Meminisse
                     break;
             }
         }
+
+        void IState.OnCancel()
+        {
+            Logger.instance.T("Idle state cancelling");
+        }
     }
 }

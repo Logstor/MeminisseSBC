@@ -80,6 +80,12 @@ namespace Meminisse
             }
         }
 
+        void IState.OnCancel()
+        {
+            Logger.instance.T("Processing state cancelling");
+            this.logController.FlushToFile();
+        }
+
         /// <summary>
         /// Creates the correct Log header for the logfile.
         /// </summary>

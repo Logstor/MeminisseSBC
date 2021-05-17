@@ -45,5 +45,11 @@ namespace Meminisse
                     break;
             }
         }
+
+        void IState.OnCancel()
+        {
+            Logger.instance.T("Paused state cancelling");
+            this.logController.FlushToFile();
+        }
     }
 }

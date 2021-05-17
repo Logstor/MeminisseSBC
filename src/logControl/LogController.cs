@@ -25,11 +25,14 @@ namespace Meminisse
 
         private IState currentState = new StateIdle();
 
+        private CancellationToken cancellationToken;
+
         /// <summary>
         /// Creates an instance of the logging controller.
         /// </summary>
-        public LogController(Logger logger)
+        public LogController(CancellationToken cancellationToken)
         {
+            this.cancellationToken = cancellationToken;
             this.dataAccess = CodeDataAccess.getInstance(Logger.instance);
         }
 
@@ -94,6 +97,13 @@ namespace Meminisse
             EntityWrap entities;
             do
             {
+                // Check for cancellation
+                if (this.cancellationToken.IsCancellationRequested)
+                {
+                    this.currentState.OnCancel();
+                    break;
+                }
+
                 // Restart log timer and get full update
                 logTimer.Restart();
                 Logger.instance.T("Requesting full Data model");

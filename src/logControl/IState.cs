@@ -14,5 +14,6 @@ namespace Meminisse
         void OnEnterState(IStateController control);
         void OnExitState(IStateController control);
         void HandleUpdate(IStateController control, long totalMilliseconds, EntityWrap entity);
+        void OnCancel();
     }
 }
