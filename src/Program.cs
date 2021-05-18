@@ -70,10 +70,6 @@ namespace Meminisse
                 {
                     logger.E(string.Format("Deserialization failed! {0}", e.Message));
                 }
-                catch(Exception e)
-                {
-                    logger.E(string.Format("Other Exception!: {0}", e.Message));
-                }
             }
         }
     }
