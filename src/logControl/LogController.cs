@@ -2,13 +2,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Text.Json;
-using System.Collections.Generic;
-
-using DuetAPIClient;
-using DuetAPI;
-using DuetAPI.Connection;
-using DuetAPI.ObjectModel;
 
 namespace Meminisse 
 {

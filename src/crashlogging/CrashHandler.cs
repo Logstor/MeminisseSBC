@@ -46,7 +46,7 @@ namespace Meminisse
             Logger.instance.T("Creating Logfile");
 
             string path = Path.Combine(Config.GeneralPath, FilePathGenerator.AppendTimeStamp("crash.log"));
-            using FileStream fs = new FileStream(path, FileMode.Create);
+            using FileStream fs = FileGenerator.CreateFileWithPermissions(path);
             using StreamWriter writer = new StreamWriter(fs, Encoding.UTF8);
 
             // Create log message
