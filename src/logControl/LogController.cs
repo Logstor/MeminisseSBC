@@ -20,6 +20,18 @@ namespace Meminisse
 
         private CancellationToken cancellationToken;
 
+        private ConfigFileWatcher configWatcher;
+
+        bool IStateController.ConfigFileListening 
+        {
+            get { return configWatcher.Enabled; }
+            set
+            {
+                // Set ConfigFileWatcher
+                configWatcher.Enabled = value;
+            }
+        }
+
         /// <summary>
         /// Creates an instance of the logging controller.
         /// </summary>
@@ -27,6 +39,19 @@ namespace Meminisse
         {
             this.cancellationToken = cancellationToken;
             this.dataAccess = CodeDataAccess.getInstance(Logger.instance);
+
+            // Init FileSystemWatcher
+            this.configWatcher = new ConfigFileWatcher();
+            this.configWatcher.AddOnChangedHandler( 
+                (object sender, FileSystemEventArgs args) => {
+                    Config.instance.Refresh();
+                } );
+        }
+
+        ~LogController()
+        {
+            if (configWatcher != null)
+                configWatcher.Dispose();
         }
 
         /// <summary>

@@ -97,11 +97,22 @@ namespace Meminisse
         internal Config() {}
 
         /// <summary>
+        /// Refreshes the config.
+        /// </summary>
+        /// <returns>True upon success</returns>
+        public bool Refresh()
+        {
+            Logger.instance.I("Refreshing Configuration");
+            this._Refresh();
+            return true;
+        }
+
+        /// <summary>
         /// Refreshes the configuration instance if there has been a change to the configuration file since last 
         /// refresh or creation.
         /// </summary>
         /// <returns>True if it refreshed</returns>
-        public bool Refresh()
+        public bool RefreshCompare()
         {
             int comparison = File.GetLastWriteTimeUtc(ConfigurationFullPath).CompareTo(configLastModification);
             if (comparison > 0)

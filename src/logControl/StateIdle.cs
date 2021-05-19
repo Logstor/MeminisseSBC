@@ -11,11 +11,14 @@ namespace Meminisse
         void IState.OnEnterState(IStateController control) 
         {
             Logger.instance.D("Entering Idle State");
+            Config.instance.RefreshCompare();
+            control.ConfigFileListening = true;
         }
 
         void IState.OnExitState(IStateController control)
         {
             Logger.instance.D("Exiting Idle State");
+            control.ConfigFileListening = false;
         }
 
         void IState.HandleUpdate(IStateController control, long totalMilliseconds, EntityWrap entity)
@@ -31,7 +34,7 @@ namespace Meminisse
                 case MachineStatus.ChangingTool:
                 default:
                     // Update configuration if necessary
-                    Config.instance.Refresh();
+                    Config.instance.RefreshCompare();
                     break;
             }
         }
