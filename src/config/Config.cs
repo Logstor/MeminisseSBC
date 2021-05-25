@@ -33,6 +33,12 @@ namespace Meminisse
         public int LogsPrMin { get; set; } = 60;
 
         /// <summary>
+        /// How often should we write to log file?
+        /// </summary>
+        /// <value></value>
+        public int FlushToFileEveryXLogs { get; set; } = 10;
+
+        /// <summary>
         /// How many times should we check if a print is started, when we're in idle state?
         /// </summary>
         /// <value></value>

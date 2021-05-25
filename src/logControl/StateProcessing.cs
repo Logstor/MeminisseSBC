@@ -45,6 +45,7 @@ namespace Meminisse
         void IState.OnExitState(IStateController control)
         {
             Logger.instance.D("Exiting Processing State");
+            this.logController.FlushToFile();
         }
 
         void IState.HandleUpdate(IStateController control, long totalMilliseconds, EntityWrap entity)
@@ -99,8 +100,16 @@ namespace Meminisse
 
         private void WriteLog(long totalMilliseconds, EntityWrap entities)
         {
+            Logger.instance.T($"Adding log entry, Time: { totalMilliseconds }");
             this.logController.Add(totalMilliseconds, this.CreateLogList(entities));
-            this.logController.FlushToFile();
+
+            // Flush / Write to file
+            if (this.logController.logBufferCount >= Config.instance.FlushToFileEveryXLogs)
+            {
+                Logger.instance.T($"Flushing log buffer! LogBufferCount: { this.logController.logBufferCount }");
+                this.logController.FlushToFile();
+            }
+        
         }
 
         private void ChangeStateAndFlush(IStateController control, IState newState)

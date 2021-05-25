@@ -3,6 +3,7 @@ using System.IO;
 using System.Globalization;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using Newtonsoft.Json;
 
@@ -24,6 +25,17 @@ namespace Meminisse
         private string pathToFile;
 
         private CsvConfiguration config;
+
+        private int _logBufferCount { get; set; }
+
+        /// <summary>
+        /// Reflects how many log entries we currently have in the buffer.
+        /// </summary>
+        /// <value></value>
+        int ILogController.logBufferCount 
+        {
+            get { return this._logBufferCount; }
+        }
 
         public CSVLogController()
         {
@@ -92,6 +104,9 @@ namespace Meminisse
             if (!this.initialized)
                 throw new Exception("LogController not initialized!");
 
+            // Increment log buffer count
+            ++this._logBufferCount;
+
             // Write to cache
             this.csv.WriteField(string.Format("{0}", totalElapsedTimeMs));
             foreach(ILogEntity entity in entities)
@@ -135,6 +150,13 @@ namespace Meminisse
             if (!this.initialized)
                 throw new Exception("LogController not initialized!");
 
+            // Check there's somthing in the buffer
+            if (this.cache.Length <= 0) 
+            {
+                Logger.instance.D("Calling FlushToFile() with empty log buffer");
+                return;
+            }
+
             try 
             {
                 // Write to file
@@ -143,8 +165,9 @@ namespace Meminisse
                     fs.Write(this.cache.GetBuffer(), 0, (int) this.cache.Length);
                 }
 
-                // Reset cache
+                // Reset cache and logBufferCount
                 this.ResetCache();
+                this._logBufferCount = 0;
             }
             catch (Exception e)
             {
