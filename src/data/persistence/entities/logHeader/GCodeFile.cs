@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Meminisse
 {
@@ -8,7 +9,7 @@ namespace Meminisse
     {
         public string gCodePath { get; set; }
 
-        public string gCodeHeader { get; set; }
+        public string[] gCodeHeader { get; set; }
 
         private GCodeFile() { }
 
@@ -32,27 +33,29 @@ namespace Meminisse
             return gCodeFile;
         }
 
-        private static string ReadGCodeHeader(string gCodePath)
+        private static string[] ReadGCodeHeader(string gCodePath)
         {
-            const int INITIAL_CAPACITY = 256;
+            LinkedList<string> headers = new LinkedList<string>();
 
             // Open Stream
             using FileStream fs = File.OpenRead(gCodePath);
             using StreamReader sr = new StreamReader(fs, Encoding.UTF8);
 
-            // Read line for line with ";"
-            StringBuilder sb = new StringBuilder(INITIAL_CAPACITY);
+            // Read line by line with ";"
             string currLine = sr.ReadLine();
             while (currLine[0] == ';')
             {
                 // Append
-                sb.Append(currLine);
+                headers.AddLast(currLine);
 
                 // Read next line
                 currLine = sr.ReadLine();
             } 
 
-            return sb.ToString();
+            // Copy contents into array
+            string[] res = new string[headers.Count];
+            headers.CopyTo(res, 0);
+            return res;
         }
     }
 }
