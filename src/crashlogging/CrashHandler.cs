@@ -53,7 +53,7 @@ namespace Meminisse
             Logger.instance.T("Creating Crash Log message");
 
             StringBuilder sbLog = new();
-            sbLog.AppendFormat("Crash Happened at: {0}\n\n", DateTime.UtcNow);
+            sbLog.AppendFormat("Crash Happened at: {0} UTC+0\n\n", DateTime.UtcNow);
             sbLog.AppendFormat("Current Config:\n{0}\n\n", JsonConvert.SerializeObject(Config.instance, Formatting.Indented));
             sbLog.AppendFormat("Exception:\n{0}\n\n", JsonConvert.SerializeObject(ex, Formatting.Indented));
             sbLog.AppendFormat("Domain:\n{0}\n\n", JsonConvert.SerializeObject(appDomain, Formatting.Indented));
