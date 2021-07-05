@@ -56,7 +56,7 @@ namespace Meminisse
             logger.I("Meminisse started!");
 
             // Init DataAccess - Inject API here
-            dataAccess = CodeDataAccess.getInstance(logger);
+            dataAccess = ConnDataAccess.getInstance(logger, cancellationToken);
 
             // Start Log Controller
             while(!cancellationToken.IsCancellationRequested)

@@ -59,6 +59,7 @@ namespace Meminisse
             this.CreateAndInitSubConnection();
 
             // Get full ObjectModel
+            this.logger.T("Retrieving Initial ObjectModel");
             Task<ObjectModel> objTask = this.subConn.GetObjectModel(this.cancellationToken);
             objTask.Wait();
             this.model = objTask.Result;
@@ -122,7 +123,6 @@ namespace Meminisse
                 return status;
             } );
         }
-
         async Task<Position> IDataAccess.requestPosition()
         {
             return await Task.Run<Position>(() => {
@@ -161,9 +161,11 @@ namespace Meminisse
             while(!this.cancellationToken.IsCancellationRequested)
             {
                 // Check connection
-                if (!this.subConn.IsConnected)
+                this.logger.T("Checking connection");
+                if (!this.CheckConnection())
                 {
                     // Update connection
+                    this.logger.D("Connection Dead - Creating new");
                     this.CreateAndInitSubConnection();
                 }
 
@@ -172,6 +174,7 @@ namespace Meminisse
                 try 
                 {
                     // Get ObjectModel Patch
+                    this.logger.T("Retrieving ObjectModel Patch");
                     Task<JsonDocument> task = this.subConn.GetObjectModelPatch(this.cancellationToken);
                     task.Wait();
                     json = task.Result;
@@ -183,11 +186,25 @@ namespace Meminisse
                 }
 
                 // Update the ObjectModel
+                this.logger.T("Updating ObjectModel from Patch");
                 this.gate.Wait(this.cancellationToken);
                 this.model.UpdateFromJson(json.RootElement);
                 this.gate.Release();
             }
         }
     
+        /// <summary>
+        /// Checks the current Subscribe Connection if it's still alive and working.
+        /// </summary>
+        /// <returns>False if dead</returns>
+        private Boolean CheckConnection()
+        {
+            // Send null-byte to ensure connection is still alive.
+            try { this.subConn.Poll(); }
+            catch(Exception) { return false; }
+
+            // Success
+            return true;
+        }
     }
 }
