@@ -99,7 +99,7 @@ namespace Meminisse
         /// </summary>
         /// <param name="totalElapsedTimeMs"></param>
         /// <param name="entities"></param>
-        void ILogController.Add(long totalElapsedTimeMs, List<ILogEntity> entities)
+        void ILogController.Add(long totalElapsedTimeMs, List<ILogEntity<Object>> entities)
         {
             if (!this.initialized)
                 throw new Exception("LogController not initialized!");
@@ -109,7 +109,7 @@ namespace Meminisse
 
             // Write to cache
             this.csv.WriteField(string.Format("{0}", totalElapsedTimeMs));
-            foreach(ILogEntity entity in entities)
+            foreach(ILogEntity<Object> entity in entities)
             {
                 // Write the correct header
                 switch(entity.GetEntityType())
@@ -191,7 +191,7 @@ namespace Meminisse
             // Set Context and WriteHeaders
             foreach (LogEntity entity in entityTypes)
             {
-                (ILogEntity logEntity, ClassMap map) = this.GetClassAndMap(entity);
+                (ILogEntity<Object> logEntity, ClassMap map) = this.GetClassAndMap(entity);
                 this.csv.Context.RegisterClassMap(map);
                 this.csv.WriteHeader(logEntity.GetType());
             }
@@ -251,22 +251,22 @@ namespace Meminisse
             using FileStream fs = FileGenerator.CreateFileWithPermissions(this.pathToFile);
         }
 
-        private (ILogEntity, ClassMap) GetClassAndMap(LogEntity entity)
+        private (ILogEntity<Object>, ClassMap) GetClassAndMap(LogEntity entity)
         {
             switch(entity)
             {
                 case LogEntity.Position:
-                    return (new Position(), new PositionMap());
+                    return ((ILogEntity<Object>) new Position(), new PositionMap());
                 case LogEntity.Time:
-                    return (new Time(), new TimeMap());
+                    return ((ILogEntity<Object>) new Time(), new TimeMap());
                 case LogEntity.Speed:
-                    return (new Speed(), new SpeedMap());
+                    return ((ILogEntity<Object>) new Speed(), new SpeedMap());
                 case LogEntity.Extrusion:
-                    return (new Extrusion(), new ExtrusionMap());
+                    return ((ILogEntity<Object>) new Extrusion(), new ExtrusionMap());
                 case LogEntity.Babystep:
-                    return (new Babystep(), new BabystepMap());
+                    return ((ILogEntity<Object>) new Babystep(), new BabystepMap());
                 case LogEntity.Voltage:
-                    return (new Voltage(), new VoltageMap());
+                    return ((ILogEntity<Object>) new Voltage(), new VoltageMap());
                 default:
                     throw new Exception(string.Format("LogEntity not recognized: {0}", entity.ToString()));
             }

@@ -5,9 +5,15 @@ using DuetAPI.ObjectModel;
 
 namespace Meminisse
 {
-    public interface ILogEntity
+    public interface ILogEntity<T>
     {
         LogEntity GetEntityType();
+
+        /// <summary>
+        /// Takes in the Duet ObjectModel and returns T.
+        /// </summary>
+        /// <param name="model">ObjectModel</param>
+        T ParseFromModel(ObjectModel model);
     }
 
     public enum LogEntity
@@ -22,6 +28,11 @@ namespace Meminisse
         Voltage
     }
 
+    /// <summary>
+    /// This wraps all loggable Entities.
+    /// 
+    /// Create with EntityWrap.Builder
+    /// </summary>
     public class EntityWrap
     {
         public MachineStatus machineStatus { get; private set; }
@@ -69,7 +80,7 @@ namespace Meminisse
         }
     }
 
-    public class Position : ILogEntity
+    public class Position : ILogEntity<Position>
     {
         public float x { get; set; }
         public float y { get; set; }
@@ -104,10 +115,53 @@ namespace Meminisse
             }
         }
 
-        LogEntity ILogEntity.GetEntityType() { return LogEntity.Position; }
+        LogEntity ILogEntity<Position>.GetEntityType() { return LogEntity.Position; }
+
+        public Position ParseFromModel(ObjectModel model)
+        {
+            // Retrieve axis
+            ModelCollection<Axis> axisCollection = model.Move.Axes;
+
+            // Update properties
+            foreach (Axis axis in axisCollection)
+            {
+                this.MapAxis(axis);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Takes an Axis object, and updates corressponding parameter.
+        /// </summary>
+        /// <param name="axis">Axis</param>
+        private void MapAxis(Axis axis)
+        {
+            switch(axis.Letter)
+            {
+                case 'X':
+                    this.x = axis.MachinePosition ?? -1.0f;
+                    break;
+
+                case 'Y':
+                    this.y = axis.MachinePosition ?? -1.0f;
+                    break;
+
+                case 'Z':
+                    this.z = axis.MachinePosition ?? -1.0f;
+                    break;
+
+                case 'U':
+                    this.u = axis.MachinePosition ?? -1.0f;
+                    break;
+
+                default:
+                    throw new ArgumentException($"Invalid axis letter: ${axis.Letter}");
+            }
+        }
     }
 
-    public class Speed : ILogEntity
+    public class Speed : ILogEntity<Speed>
     {
         public int speedRequested { get; set; }
         public int speedTop { get; set; }
@@ -122,10 +176,19 @@ namespace Meminisse
             this.speedFactor = speedFactor;
         }
 
-        LogEntity ILogEntity.GetEntityType() { return LogEntity.Speed; }
+        LogEntity ILogEntity<Speed>.GetEntityType() { return LogEntity.Speed; }
+
+        public Speed ParseFromModel(ObjectModel model)
+        {
+            this.speedFactor = model.Move.SpeedFactor;
+            this.speedRequested = ((int)model.Move.CurrentMove.RequestedSpeed);
+            this.speedTop = ((int)model.Move.CurrentMove.TopSpeed);
+
+            return this;
+        }
     }
     
-    public class Time : ILogEntity
+    public class Time : ILogEntity<Time>
     {
         public int printDurationSec { get; set; }
         public int pauseDurationSec { get; set; }
@@ -138,19 +201,34 @@ namespace Meminisse
             this.pauseDurationSec = pauseDuration;
         }
 
-        LogEntity ILogEntity.GetEntityType() { return LogEntity.Time; }
+        LogEntity ILogEntity<Time>.GetEntityType() { return LogEntity.Time; }
+
+        public Time ParseFromModel(ObjectModel model)
+        {
+            this.pauseDurationSec = model.Job.PauseDuration ?? -1;
+            this.printDurationSec = model.Job.Duration ?? -1;
+
+            return this;
+        }
     }
 
-    public class Extrusion : ILogEntity
+    public class Extrusion : ILogEntity<Extrusion>
     {
         public float ExtrusionFactor { get; set; }
 
         public Extrusion() {}
 
-        LogEntity ILogEntity.GetEntityType() { return LogEntity.Extrusion; }
+        LogEntity ILogEntity<Extrusion>.GetEntityType() { return LogEntity.Extrusion; }
+
+        public Extrusion ParseFromModel(ObjectModel model)
+        {
+            this.ExtrusionFactor = model.Move.Extruders[0].Factor;
+
+            return this;
+        }
     }
 
-    public class Babystep : ILogEntity
+    public class Babystep : ILogEntity<Babystep>
     {
         public float xBaby { get; set; }
         public float yBaby { get; set; }
@@ -173,7 +251,7 @@ namespace Meminisse
             {
                 case 4:
                     this.uBaby = baby[3];
-                    goto case 3;
+                    goto case 3;    // For some reason dotnet doesn't accept fallthrough.
                 case 3:
                     this.zBaby = baby[2];
                     this.yBaby = baby[1];
@@ -185,10 +263,53 @@ namespace Meminisse
             }
         }
 
-        LogEntity ILogEntity.GetEntityType() { return LogEntity.Babystep; }
+        LogEntity ILogEntity<Babystep>.GetEntityType() { return LogEntity.Babystep; }
+
+        public Babystep ParseFromModel(ObjectModel model)
+        {
+            // Retrieve Model collection of Axis
+            ModelCollection<Axis> axisCollection = model.Move.Axes;
+
+            // Update properties for all axis
+            foreach (Axis axis in axisCollection)
+            {
+                this.MapAxis(axis);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Takes an Axis object, and updates corressponding parameter.
+        /// </summary>
+        /// <param name="axis">Axis</param>
+        private void MapAxis(Axis axis)
+        {
+            switch(axis.Letter)
+            {
+                case 'X':
+                    this.xBaby = axis.Babystep;
+                    break;
+
+                case 'Y':
+                    this.yBaby = axis.Babystep;
+                    break;
+
+                case 'Z':
+                    this.zBaby = axis.Babystep;
+                    break;
+
+                case 'U':
+                    this.uBaby = axis.Babystep;
+                    break;
+
+                default:
+                    throw new ArgumentException($"Invalid axis letter: ${axis.Letter}");
+            }
+        }
     }
 
-    public class Voltage : ILogEntity
+    public class Voltage : ILogEntity<Voltage>
     {
         public float v12Curr { get; set; }
         public float v12Min { get; set; }
@@ -209,6 +330,13 @@ namespace Meminisse
             this.vInMax = vInMax;
         }
 
-        LogEntity ILogEntity.GetEntityType() { return LogEntity.Voltage; }
+        LogEntity ILogEntity<Voltage>.GetEntityType() { return LogEntity.Voltage; }
+
+        public Voltage ParseFromModel(ObjectModel model)
+        {
+
+
+            return this;
+        }
     }
 }
