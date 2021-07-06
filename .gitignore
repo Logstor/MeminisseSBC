@@ -2,3 +2,6 @@
 bin
 obj
 build
+
+# Generated OPC model
+myModel.csv
