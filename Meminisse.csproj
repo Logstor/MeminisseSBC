@@ -6,10 +6,34 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <Choose>
+
+        <When Condition=" '$(Configuration)'=='Debug' ">
+            <PropertyGroup>
+                <WarningLevel>5</WarningLevel>
+                <DebugSymbols>true</DebugSymbols>
+                <DebugType>full</DebugType>
+                <Optimize>false</Optimize>
+                <DefineConstants>DEBUG;TRACE</DefineConstants>
+            </PropertyGroup>
+            <ItemGroup>
+            </ItemGroup>
+        </When>
+
+        <When Condition=" '$(Configuration)'=='Release' ">
+            <PropertyGroup>
+                <WarningLevel>0</WarningLevel>
+                <DebugSymbols>false</DebugSymbols>
+                <Optimize>true</Optimize>
+            </PropertyGroup>
+        </When>
+
+    </Choose>
+
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.1.0" />
-    <PackageReference Include="DuetAPI" Version="3.3.0" />
-    <PackageReference Include="DuetAPIClient" Version="3.3.0" />
+    <PackageReference Include="DuetAPI" Version="3.3.1" />
+    <PackageReference Include="DuetAPIClient" Version="3.3.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.366.38" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />

@@ -13,20 +13,74 @@
   xmlns="http://opcfoundation.org/UA/ModelDesign.xsd">
 
   <Namespaces>
-    <Namespace Name="OpcUaDi" Prefix="Opc.Ua.Di" XmlNamespace="http://opcfoundation.org/UA/DI/Types.xsd" XmlPrefix="DI">http://opcfoundation.org/UA/DI/</Namespace>
+    <Namespace Name="Duet" Prefix="Duet" XmlNamespace="http://opcfoundation.org/UA/DI/Types.xsd" XmlPrefix="DI">http://opcfoundation.org/UA/DI/</Namespace>
     <Namespace Name="OpcUa" Version="1.04.4" PublicationDate="2020-01-08T00:00:00Z" Prefix="Opc.Ua" InternalPrefix="Opc.Ua.Server" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd" XmlPrefix="OpcUa">http://opcfoundation.org/UA/</Namespace>
   </Namespaces>
+
+  <!-- ### Data Types ###-->
+  <DataType SymbolicName="DI:Speed" BaseType="OpcUa:Structure">
+    <Description>Contains RequestedSpeed and TopSpeed</Description>
+    <Fields>
+
+      <Field Name="RequestedSpeed" DataType="OpcUa:Float">
+        <Description>RequestedSpeed</Description>
+      </Field>
+
+      <Field Name="TopSpeed" DataType="OpcUa:Float">
+        <Description>TopSpeed</Description>
+      </Field>
+
+    </Fields>
+  </DataType>
+
+  <DataType SymbolicName="DI:Kinematics" BaseType="OpcUa:Structure">
+    <Description>Contains Acceleration and Deceleration</Description>
+    <Fields>
+
+      <Field Name="Acceleration" DataType="OpcUa:Float">
+        <Description>Acceleration</Description>
+      </Field>
+
+      <Field Name="Deceleration" DataType="OpcUa:Float">
+        <Description>Deceleration</Description>
+      </Field>
+
+    </Fields>
+  </DataType>
+
+  <!-- ### Variable Types ###-->
+
+  
+
+  <!-- ### Object Types ###-->
+  <ObjectType SymbolicName="DI:Move" BaseType="OpcUa:BaseObjectType">
+    <Description>Represents the current executing move.</Description>
+    <Children>
+
+      <Property SymbolicName="DI:Speeds" DataType="DI:Speed">
+        <Description>mm/s</Description>
+      </Property>
+
+      <Property SymbolicName="DI:Accelerations" DataType="DI:Kinematics">
+        <Description>mm/s²</Description>
+      </Property>
+
+    </Children>
+  </ObjectType>
 
   <!-- ### Reference Types ###-->
 
   
-  <!-- ### Object Types ###-->
-
-  <!-- ### Variable Types ###-->
-
-  <!-- ### Data Types ###-->
-
   <!-- ### Objects ###-->
+  <Object SymbolicName="DI:CurrentMove" TypeDefinition="DI:Move">
+
+    <Description></Description>
+
+    
+
+  </Object>
+
+  <!-- ### Methods ### -->
 
 	
 </ModelDesign>

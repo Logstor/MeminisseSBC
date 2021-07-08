@@ -1,3 +1,0 @@
-[submodule "opc/ModelCompiler"]
-	path = opc/ModelCompiler
-	url = https://github.com/OPCFoundation/UA-ModelCompiler.git

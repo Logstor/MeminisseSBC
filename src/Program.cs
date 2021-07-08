@@ -1,9 +1,11 @@
-﻿using System;
-using DuetAPIClient;
+﻿using DuetAPIClient;
 using DuetAPI;
 using DuetAPI.Commands;
 using DuetAPI.Connection;
 using DuetAPI.ObjectModel;
+
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
@@ -61,10 +63,14 @@ namespace Meminisse
             // Start Log Controller
             while(!cancellationToken.IsCancellationRequested)
             {
+                List<Task> taskList = new List<Task>(2);
                 try 
                 {
                     LogController logController = new LogController(cancellationToken);
-                    await logController.start();
+                    taskList.Add(logController.start());
+
+                    
+                    Task.WhenAll(taskList);
                 }
                 catch(JsonException e)
                 {

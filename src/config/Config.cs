@@ -21,6 +21,12 @@ namespace Meminisse
         public LogLevel ConsoleLogLevel { get; set; } = LogLevel.INFO;
 
         /// <summary>
+        /// Should the OPC server be running?
+        /// </summary>
+        /// <value></value>
+        public bool OPCServer { get; set; } = true;
+
+        /// <summary>
         /// What character should be used to delimiter entities in the logfile?
         /// </summary>
         /// <value></value>
