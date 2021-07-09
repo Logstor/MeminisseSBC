@@ -143,27 +143,27 @@ namespace Meminisse
             return list;
         }
 
-        private List<ILogEntity<Object>> CreateLogList(EntityWrap entities)
+        private List<Object> CreateLogList(EntityWrap entities)
         {
-            List<ILogEntity<Object>> list = new List<ILogEntity<Object>>(10);
+            List<Object> list = new List<Object>(6);
 
             if (Config.instance.LogPosition)
-                list.Add((ILogEntity<Object>) entities.position);
+                list.Add(entities.position);
 
             if (Config.instance.LogPrintSpeed)
-                list.Add((ILogEntity<Object>) entities.speed);
+                list.Add(entities.speed);
 
             if (Config.instance.LogTime)
-                list.Add((ILogEntity<Object>) entities.time);
+                list.Add(entities.time);
 
             if (Config.instance.LogExtrusion)
-                list.Add((ILogEntity<Object>) entities.extrusion);
+                list.Add(entities.extrusion);
 
             if (Config.instance.LogBaby)
-                list.Add((ILogEntity<Object>) entities.babystep);
+                list.Add(entities.babystep);
 
             if (Config.instance.LogVoltages)
-                list.Add((ILogEntity<Object>) entities.voltage);
+                list.Add(entities.voltage);
 
             return list;
         }

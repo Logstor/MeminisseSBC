@@ -82,6 +82,7 @@ namespace Meminisse
 
     public class Position : ILogEntity<Position>
     {
+        public const string id = "0";
         public float x { get; set; }
         public float y { get; set; }
         public float z { get; set; }
@@ -95,6 +96,11 @@ namespace Meminisse
             this.y = y;
             this.z = z;
             this.u = u;
+        }
+
+        public override string ToString()
+        {
+            return id;
         }
 
         public Position(List<float> pos)
@@ -163,6 +169,7 @@ namespace Meminisse
 
     public class Speed : ILogEntity<Speed>
     {
+        public const string id = "1";
         public int speedRequested { get; set; }
         public int speedTop { get; set; }
         public float speedFactor { get; set; }
@@ -174,6 +181,11 @@ namespace Meminisse
             this.speedRequested = requested;
             this.speedTop = top;
             this.speedFactor = speedFactor;
+        }
+
+        public override string ToString()
+        {
+            return id;
         }
 
         LogEntity ILogEntity<Speed>.GetEntityType() { return LogEntity.Speed; }
@@ -190,6 +202,7 @@ namespace Meminisse
     
     public class Time : ILogEntity<Time>
     {
+        public const string id = "2";
         public int printDurationSec { get; set; }
         public int pauseDurationSec { get; set; }
 
@@ -199,6 +212,11 @@ namespace Meminisse
         {
             this.printDurationSec = duration;
             this.pauseDurationSec = pauseDuration;
+        }
+
+        public override string ToString()
+        {
+            return id;
         }
 
         LogEntity ILogEntity<Time>.GetEntityType() { return LogEntity.Time; }
@@ -214,9 +232,15 @@ namespace Meminisse
 
     public class Extrusion : ILogEntity<Extrusion>
     {
+        public const string id = "3";
         public float ExtrusionFactor { get; set; }
 
         public Extrusion() {}
+
+        public override string ToString()
+        {
+            return id;
+        }
 
         LogEntity ILogEntity<Extrusion>.GetEntityType() { return LogEntity.Extrusion; }
 
@@ -230,6 +254,7 @@ namespace Meminisse
 
     public class Babystep : ILogEntity<Babystep>
     {
+        public const string id = "4";
         public float xBaby { get; set; }
         public float yBaby { get; set; }
         public float zBaby { get; set; }
@@ -243,6 +268,11 @@ namespace Meminisse
             this.yBaby = y;
             this.zBaby = z;
             this.uBaby = u;
+        }
+
+        public override string ToString()
+        {
+            return id;
         }
 
         public Babystep(List<float> baby)
@@ -311,6 +341,7 @@ namespace Meminisse
 
     public class Voltage : ILogEntity<Voltage>
     {
+        public const string id = "5";
         public float v12Curr { get; set; }
         public float v12Min { get; set; }
         public float v12Max { get; set; }
@@ -330,11 +361,24 @@ namespace Meminisse
             this.vInMax = vInMax;
         }
 
+        public override string ToString()
+        {
+            return id;
+        }
+
         LogEntity ILogEntity<Voltage>.GetEntityType() { return LogEntity.Voltage; }
 
         public Voltage ParseFromModel(ObjectModel model)
         {
+            Board board = model.Boards[0];
 
+            this.v12Curr    = board.V12.Current;
+            this.v12Max     = board.V12.Max;
+            this.v12Max     = board.V12.Min;
+
+            this.vInCurr    = board.VIn.Current;
+            this.vInMax     = board.VIn.Max;
+            this.vInMin     = board.VIn.Min;
 
             return this;
         }

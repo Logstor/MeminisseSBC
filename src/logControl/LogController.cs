@@ -35,10 +35,10 @@ namespace Meminisse
         /// <summary>
         /// Creates an instance of the logging controller.
         /// </summary>
-        public LogController(CancellationToken cancellationToken)
+        public LogController(IDataAccess dataAPI, CancellationToken cancellationToken)
         {
             this.cancellationToken = cancellationToken;
-            this.dataAccess = CodeDataAccess.getInstance(Logger.instance);
+            this.dataAccess = dataAPI;
 
             // Init FileSystemWatcher
             this.configWatcher = new ConfigFileWatcher();

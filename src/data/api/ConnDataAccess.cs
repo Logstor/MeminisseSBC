@@ -33,6 +33,10 @@ namespace Meminisse
 
         private ObjectModel model;
 
+        /// <summary>
+        /// Add handler to this event to be notified every time the ObjectModel is updated.
+        /// </summary>
+        public event OnUpdateHandler OnObjectModelChange;
 
         /// <summary>
         /// Getting the instance. If it's already initialized it ignores the Logger and CancellationToken.
@@ -123,6 +127,7 @@ namespace Meminisse
                 return status;
             } );
         }
+        
         async Task<Position> IDataAccess.requestPosition()
         {
             return await Task.Run<Position>(() => {
@@ -140,6 +145,16 @@ namespace Meminisse
                 string filePath = this.model.Job.File.FileName;
                 this.gate.Release();
                 return filePath;
+            });
+        }
+
+        async Task<ObjectModel> IDataAccess.requestObjectModel()
+        {
+            return await Task.Run<ObjectModel>(() => {
+                this.gate.Wait(this.cancellationToken);
+                ObjectModel nModel = Util.CloneUtil.CloneObj<ObjectModel>(this.model);
+                this.gate.Release();
+                return nModel;
             });
         }
 
@@ -190,6 +205,9 @@ namespace Meminisse
                 this.gate.Wait(this.cancellationToken);
                 this.model.UpdateFromJson(json.RootElement);
                 this.gate.Release();
+
+                // Notify listeners without cloning ObjectModel
+                this.OnObjectModelChange?.Invoke(this.model);
             }
         }
     

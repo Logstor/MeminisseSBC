@@ -18,61 +18,74 @@
   </Namespaces>
 
   <!-- ### Data Types ###-->
-  <DataType SymbolicName="DI:Speed" BaseType="OpcUa:Structure">
+  <ObjectType SymbolicName="DI:Speed" BaseType="OpcUa:BaseObjectType">
     <Description>Contains RequestedSpeed and TopSpeed</Description>
-    <Fields>
+    <Children>
 
-      <Field Name="RequestedSpeed" DataType="OpcUa:Float">
+      <Variable SymbolicName="DI:RequestedSpeed" DataType="OpcUa:Float">
         <Description>RequestedSpeed</Description>
-      </Field>
+      </Variable>
 
-      <Field Name="TopSpeed" DataType="OpcUa:Float">
+      <Variable SymbolicName="DI:TopSpeed" DataType="OpcUa:Float">
         <Description>TopSpeed</Description>
-      </Field>
+      </Variable>
 
-    </Fields>
-  </DataType>
+    </Children>
+  </ObjectType>
 
-  <DataType SymbolicName="DI:Kinematics" BaseType="OpcUa:Structure">
+  <ObjectType SymbolicName="DI:Kinematics" BaseType="OpcUa:BaseObjectType">
     <Description>Contains Acceleration and Deceleration</Description>
-    <Fields>
+    <Children>
 
-      <Field Name="Acceleration" DataType="OpcUa:Float">
+      <Variable SymbolicName="DI:Acceleration" DataType="OpcUa:Float">
         <Description>Acceleration</Description>
-      </Field>
+      </Variable>
 
-      <Field Name="Deceleration" DataType="OpcUa:Float">
+      <Variable SymbolicName="DI:Deceleration" DataType="OpcUa:Float">
         <Description>Deceleration</Description>
-      </Field>
+      </Variable>
 
-    </Fields>
-  </DataType>
+    </Children>
+  </ObjectType>
 
   <!-- ### Variable Types ###-->
 
   
 
   <!-- ### Object Types ###-->
-  <ObjectType SymbolicName="DI:Move" BaseType="OpcUa:BaseObjectType">
+  <ObjectType SymbolicName="DI:Move" BaseType="OpcUa:FolderType">
     <Description>Represents the current executing move.</Description>
     <Children>
 
-      <Property SymbolicName="DI:Speeds" DataType="DI:Speed">
+      <Object SymbolicName="DI:Speeds" BaseType="DI:Speed" TypeDefinition="DI:Speed">
         <Description>mm/s</Description>
-      </Property>
+      </Object>
 
-      <Property SymbolicName="DI:Accelerations" DataType="DI:Kinematics">
+      <Object SymbolicName="DI:Accelerations" BaseType="DI:Kinematics" TypeDefinition="DI:Kinematics">
         <Description>mm/s²</Description>
-      </Property>
+      </Object>
 
     </Children>
+  </ObjectType>
+
+  <ObjectType SymbolicName="DI:ModelObject" BaseType="OpcUa:FolderType">
+    <Description>Full Duet ObjectModel</Description>
+
+    <Children>
+
+      <Object SymbolicName="DI:CurrentMove" BaseType="DI:Move" TypeDefinition="DI:Move">
+        <Description>The Current executing move.</Description>
+      </Object>
+
+    </Children>
+  
   </ObjectType>
 
   <!-- ### Reference Types ###-->
 
   
   <!-- ### Objects ###-->
-  <Object SymbolicName="DI:CurrentMove" TypeDefinition="DI:Move">
+  <Object SymbolicName="DI:ObjectModel" TypeDefinition="DI:ModelObject" SupportsEvents="true">
 
     <Description></Description>
 

@@ -7,8 +7,19 @@ using DuetAPIClient;
 
 namespace Meminisse
 {
+
+    /// <summary>
+    /// Delegate which is used to subscribe to IDataAccess objects.
+    /// </summary>
+    /// <param name="model">DuetAPI.ObjectModel</param>
+    public delegate void OnUpdateHandler(ObjectModel model); 
+
     public interface IDataAccess 
     {
+        event OnUpdateHandler OnObjectModelChange;
+
+        Task<ObjectModel> requestObjectModel();
+
         Task<EntityWrap> requestFull();
 
         /// <summary>

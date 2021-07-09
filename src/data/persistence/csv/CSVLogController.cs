@@ -99,7 +99,7 @@ namespace Meminisse
         /// </summary>
         /// <param name="totalElapsedTimeMs"></param>
         /// <param name="entities"></param>
-        void ILogController.Add(long totalElapsedTimeMs, List<ILogEntity<Object>> entities)
+        void ILogController.Add(long totalElapsedTimeMs, List<Object> entities)
         {
             if (!this.initialized)
                 throw new Exception("LogController not initialized!");
@@ -109,27 +109,27 @@ namespace Meminisse
 
             // Write to cache
             this.csv.WriteField(string.Format("{0}", totalElapsedTimeMs));
-            foreach(ILogEntity<Object> entity in entities)
+            foreach(Object entity in entities)
             {
                 // Write the correct header
-                switch(entity.GetEntityType())
+                switch(entity.ToString())
                 {
-                    case LogEntity.Position:
+                    case Position.id:
                         this.csv.WriteRecord<Position>((Position) entity);
                         break;
-                    case LogEntity.Time:
+                    case Time.id:
                         this.csv.WriteRecord<Time>((Time) entity);
                         break;
-                    case LogEntity.Speed:
+                    case Speed.id:
                         this.csv.WriteRecord<Speed>((Speed) entity);
                         break;
-                    case LogEntity.Extrusion:
+                    case Extrusion.id:
                         this.csv.WriteRecord<Extrusion>((Extrusion) entity);
                         break;
-                    case LogEntity.Babystep:
+                    case Babystep.id:
                         this.csv.WriteRecord<Babystep>((Babystep) entity);
                         break;
-                    case LogEntity.Voltage:
+                    case Voltage.id:
                         this.csv.WriteRecord<Voltage>((Voltage) entity);
                         break;
                     default:
@@ -191,7 +191,7 @@ namespace Meminisse
             // Set Context and WriteHeaders
             foreach (LogEntity entity in entityTypes)
             {
-                (ILogEntity<Object> logEntity, ClassMap map) = this.GetClassAndMap(entity);
+                (Object logEntity, ClassMap map) = this.GetClassAndMap(entity);
                 this.csv.Context.RegisterClassMap(map);
                 this.csv.WriteHeader(logEntity.GetType());
             }
@@ -251,22 +251,22 @@ namespace Meminisse
             using FileStream fs = FileGenerator.CreateFileWithPermissions(this.pathToFile);
         }
 
-        private (ILogEntity<Object>, ClassMap) GetClassAndMap(LogEntity entity)
+        private (Object, ClassMap) GetClassAndMap(LogEntity entity)
         {
             switch(entity)
             {
                 case LogEntity.Position:
-                    return ((ILogEntity<Object>) new Position(), new PositionMap());
+                    return (new Position(), new PositionMap());
                 case LogEntity.Time:
-                    return ((ILogEntity<Object>) new Time(), new TimeMap());
+                    return (new Time(), new TimeMap());
                 case LogEntity.Speed:
-                    return ((ILogEntity<Object>) new Speed(), new SpeedMap());
+                    return (new Speed(), new SpeedMap());
                 case LogEntity.Extrusion:
-                    return ((ILogEntity<Object>) new Extrusion(), new ExtrusionMap());
+                    return (new Extrusion(), new ExtrusionMap());
                 case LogEntity.Babystep:
-                    return ((ILogEntity<Object>) new Babystep(), new BabystepMap());
+                    return (new Babystep(), new BabystepMap());
                 case LogEntity.Voltage:
-                    return ((ILogEntity<Object>) new Voltage(), new VoltageMap());
+                    return (new Voltage(), new VoltageMap());
                 default:
                     throw new Exception(string.Format("LogEntity not recognized: {0}", entity.ToString()));
             }

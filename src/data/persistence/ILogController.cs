@@ -14,7 +14,7 @@ namespace Meminisse
 
         void Reset();
 
-        void Add(long totalElapsedTimeMs, List<ILogEntity<Object>> entities);
+        void Add(long totalElapsedTimeMs, List<Object> entities);
 
         void FlushToFile();
     }

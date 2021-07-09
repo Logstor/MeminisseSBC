@@ -30,6 +30,8 @@ namespace Meminisse
 
         private int maxRetry = 3;
 
+        public event OnUpdateHandler OnObjectModelChange;
+
         private CodeDataAccess(Logger logger) 
         {
             commandConnection = new CommandConnection();
@@ -86,6 +88,14 @@ namespace Meminisse
                         throw;
                 }
             }
+        }
+
+        async Task<ObjectModel> IDataAccess.requestObjectModel()
+        {
+            // Check connection
+            await this.CheckConnection();
+
+            return await this.commandConnection.GetObjectModel();
         }
 
         /// <summary>

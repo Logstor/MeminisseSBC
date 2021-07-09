@@ -60,23 +60,22 @@ namespace Meminisse
             // Init DataAccess - Inject API here
             dataAccess = ConnDataAccess.getInstance(logger, cancellationToken);
 
-            // Start Log Controller
-            while(!cancellationToken.IsCancellationRequested)
+            // CSV Log Controller
+            List<Task> tasks = new List<Task>(2);
+            if (config.CSVLogging)
             {
-                List<Task> taskList = new List<Task>(2);
-                try 
-                {
-                    LogController logController = new LogController(cancellationToken);
-                    taskList.Add(logController.start());
-
-                    
-                    Task.WhenAll(taskList);
-                }
-                catch(JsonException e)
-                {
-                    logger.E(string.Format("Deserialization failed! {0}", e.Message));
-                }
+                tasks.Add(new LogController(dataAccess, cancellationToken).start());
             }
+
+            // OPC Server
+            if (config.OPCServer)
+            {
+                logger.I("Starting Meminisse OPC Server");
+                tasks.Add(new OPCApp(dataAccess, cancellationToken).Start());
+            }
+
+            // Wait
+            await Task.WhenAll(tasks);
         }
     }
 }

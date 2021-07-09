@@ -10,8 +10,11 @@ namespace Meminisse
         public static string COBODSysPath { get; set; } = Path.Combine(SDPath, "sys/COBOD/");
         public static string GeneralPath { get; set; } = Path.Combine(COBODSysPath,"Meminisse/");
         public static string ConfigurationPath { get; set; } = Path.Combine(GeneralPath, "");
+        public static string OPCPath { get; set; } = Path.Combine(GeneralPath, "OPC");
         public static string ConfigurationFilename { get; set; } = "MeminisseConfig.json";
         public static string ConfigurationFullPath { get; set; } = Path.Combine(ConfigurationPath, ConfigurationFilename);
+        public static string OPCServerConfFullPath { get; set; } = Path.Combine(OPCPath, "OPCServerConf.xml");
+        public static string OPCPredefinedNodesXMLPath { get; set; } = Path.Combine(OPCPath, "Duet.PredefinedNodes.xml");
         public static string DataPath { get; set; } = Path.Combine(GeneralPath, "data");
 
         /// <summary>
@@ -25,6 +28,12 @@ namespace Meminisse
         /// </summary>
         /// <value></value>
         public bool OPCServer { get; set; } = true;
+
+        /// <summary>
+        /// Should the CSV Logger be running?
+        /// </summary>
+        /// <value></value>
+        public bool CSVLogging { get; set; } = true;
 
         /// <summary>
         /// What character should be used to delimiter entities in the logfile?
